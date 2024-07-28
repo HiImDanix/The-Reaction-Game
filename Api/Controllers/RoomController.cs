@@ -5,7 +5,7 @@ namespace ReaktlyC.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class RoomController : ControllerBase
+public class RoomController : ResultControllerBase
 {
     
     private readonly IRoomService _roomService;
@@ -19,28 +19,27 @@ public class RoomController : ControllerBase
     public async Task<IActionResult> CreateRoom([FromForm] string playerName)
     {
         var room = await _roomService.CreateRoomAsync(playerName);
-        return Ok(room);
+        return FromResult(room);
     }
     
     [HttpGet("{code}")]
     public async Task<IActionResult> GetRoom(string code)
     {
         var room = await _roomService.GetRoomByCodeAsync(code);
-        return Ok(room);
+        return FromResult(room);
     }
 
     [HttpPost("{code}/player")]
     public async Task<IActionResult> JoinRoom(string code, [FromForm] string playerName)
     {
         var room = await _roomService.JoinRoomAsync(code, playerName);
-        return Ok(room);
+        return FromResult(room);
     }
     
-    // Get room by player session token
     [HttpGet("player/{sessionToken}")]
     public async Task<IActionResult> GetRoomByPlayerSession(string sessionToken)
     {
         var room = await _roomService.GetRoomByYourPlayerSessionAsync(sessionToken);
-        return Ok(room);
+        return FromResult(room);
     }
 }

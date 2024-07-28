@@ -17,19 +17,8 @@ public class GlobalExceptionHandler : IExceptionFilter
     {
         var statusCode = StatusCodes.Status500InternalServerError;
         var message = context.Exception.Message;
-
-        switch (context.Exception)
-        {
-            case NotFoundException:
-                statusCode = StatusCodes.Status404NotFound;
-                break;
-            case CannotJoinRoomException:
-                statusCode = StatusCodes.Status400BadRequest;
-                break;
-            default:
-                _logger.LogError(context.Exception, "An unhandled exception occurred");
-                break;
-        }
+        
+        _logger.LogError(context.Exception, "An unhandled exception occurred");
 
         context.Result = new ObjectResult(new { error = message })
         {

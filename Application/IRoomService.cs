@@ -1,12 +1,13 @@
 ﻿using Contracts.Output;
 using Domain;
+using FluentResults;
 
 namespace Application;
 
 public interface IRoomService
 {
-    Task<RoomOut> CreateRoomAsync(string hostName);
-    Task<RoomOut> JoinRoomAsync(string code, string playerName);
-    Task<RoomOut> GetRoomByCodeAsync(string code);
-    Task<RoomOut> GetRoomByYourPlayerSessionAsync(string sessionToken);
+    Task<Result<RoomOut>> CreateRoomAsync(string hostName);
+    Task<Result<RoomOut>> JoinRoomAsync(string code, string playerName);
+    Task<Result<RoomOut>> GetRoomByCodeAsync(string code);
+    Task<Result<RoomOut>> GetRoomByYourPlayerSessionAsync(string sessionToken);
 }

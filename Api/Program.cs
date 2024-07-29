@@ -66,3 +66,6 @@ void ConfigureApp(WebApplication appBuilder)
 
     // Add any additional middleware or app configurations here
 }
+
+// needed for integration tests
+public partial class Program { }

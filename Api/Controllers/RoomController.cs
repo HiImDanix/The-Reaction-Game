@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Application;
+using Contracts.Input;
 
 namespace ReaktlyC.Controllers;
 
@@ -16,9 +17,9 @@ public class RoomController : ResultControllerBase
     }
     
     [HttpPost]
-    public async Task<IActionResult> CreateRoom([FromForm] string playerName)
+    public async Task<IActionResult> CreateRoom(CreateRoomRequest request)
     {
-        var room = await _roomService.CreateRoomAsync(playerName);
+        var room = await _roomService.CreateRoomAsync(request.PlayerName);
         return FromResult(room);
     }
     

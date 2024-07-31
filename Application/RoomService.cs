@@ -5,15 +5,16 @@ using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Domain;
 using FluentResults;
+using DbContext = Infrastructure.DbContext;
 
 namespace Application;
 
 public class RoomService : IRoomService
 {
-    private readonly RoomDbContext _context;
+    private readonly DbContext _context;
     private readonly IMapper _mapper;
 
-    public RoomService(IMapper mapper, RoomDbContext context)
+    public RoomService(IMapper mapper, DbContext context)
     {
         _mapper = mapper;
         _context = context;

@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
+using DbContext = Infrastructure.DbContext;
 
 namespace Integration;
 
@@ -62,14 +63,14 @@ public class RoomControllerIntegrationTests : IClassFixture<WebApplicationFactor
         builder.ConfigureServices(services =>
         {
             var descriptor = services.SingleOrDefault(
-                d => d.ServiceType == typeof(DbContextOptions<RoomDbContext>));
+                d => d.ServiceType == typeof(DbContextOptions<DbContext>));
 
             if (descriptor != null)
             {
                 services.Remove(descriptor);
             }
 
-            services.AddDbContext<RoomDbContext>(options =>
+            services.AddDbContext<DbContext>(options =>
             {
                 options.UseInMemoryDatabase("InMemoryDbForTesting")
                     .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));

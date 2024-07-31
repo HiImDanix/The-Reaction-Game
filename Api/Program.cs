@@ -6,6 +6,7 @@ using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using ReaktlyC;
+using DbContext = Infrastructure.DbContext;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,7 +45,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
     // Database context
-    services.AddDbContext<RoomDbContext>(options =>
+    services.AddDbContext<DbContext>(options =>
     {
         options.UseInMemoryDatabase("Rooms");
         options.ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));

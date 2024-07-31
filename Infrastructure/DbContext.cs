@@ -3,9 +3,9 @@ using Domain;
 
 namespace Infrastructure;
 
-public class RoomDbContext: DbContext
+public class DbContext: Microsoft.EntityFrameworkCore.DbContext
 {
-    public RoomDbContext(DbContextOptions<RoomDbContext> options) : base(options)
+    public DbContext(DbContextOptions<DbContext> options) : base(options)
     {
     }
     

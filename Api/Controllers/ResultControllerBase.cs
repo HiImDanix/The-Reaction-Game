@@ -5,6 +5,7 @@ using FluentResults;
 
 namespace ReaktlyC.Controllers;
 
+[ApiController]
 public class ResultControllerBase : ControllerBase
 {
     // private readonly ILogger<ResultControllerBase> _logger;
@@ -24,7 +25,7 @@ public class ResultControllerBase : ControllerBase
         return FromErrors(result.Errors);
     }
 
-    private IActionResult FromErrors(List<IError> errors)
+    protected IActionResult FromErrors(List<IError> errors)
     {
         var primaryError = errors.FirstOrDefault();
         var statusCode = GetStatusCodeForError(primaryError);

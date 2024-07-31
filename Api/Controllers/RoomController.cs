@@ -4,8 +4,7 @@ using Contracts.Input;
 
 namespace ReaktlyC.Controllers;
 
-[ApiController]
-[Route("[controller]")]
+[Route("rooms")]
 public class RoomController : ResultControllerBase
 {
     
@@ -19,28 +18,38 @@ public class RoomController : ResultControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateRoom(CreateRoomRequest request)
     {
+        
         var room = await _roomService.CreateRoomAsync(request.PlayerName);
         return FromResult(room);
     }
     
-    [HttpGet("{code}")]
-    public async Task<IActionResult> GetRoom(string code)
+    [HttpGet("roomCode")]
+    public async Task<IActionResult> VerifyRoomIsJoinable(string code)
     {
-        var room = await _roomService.GetRoomByCodeAsync(code);
-        return FromResult(room);
+        var room = await _roomService.IsRoomJoinable(code);
+        
+        return room.IsSuccess ? Ok() : FromErrors(room.Errors);
     }
 
-    [HttpPost("{code}/player")]
-    public async Task<IActionResult> JoinRoom(string code, [FromForm] string playerName)
+    [HttpPost("join")]
+    public async Task<IActionResult> JoinRoom(JoinRoomRequest req)
     {
-        var room = await _roomService.JoinRoomAsync(code, playerName);
+        var room = await _roomService.JoinRoomAsync(req.Code, req.PlayerName);
         return FromResult(room);
     }
     
-    [HttpGet("player/{sessionToken}")]
-    public async Task<IActionResult> GetRoomByPlayerSession(string sessionToken)
+    [HttpGet]
+    public async Task<IActionResult> GetRoomByPlayerSession()
     {
-        var room = await _roomService.GetRoomByYourPlayerSessionAsync(sessionToken);
+        var sessionToken = Request.Headers["Authorization"].FirstOrDefault();
+        if (string.IsNullOrEmpty(sessionToken))
+        {
+            return Unauthorized("Authorization header is missing");
+        }
+        
+        // TODO: Authorize the player. Create a filter for this.
+        
+        var room = await _roomService.GetRoomByPlayerSessionAsync(sessionToken);
         return FromResult(room);
     }
 }

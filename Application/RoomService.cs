@@ -42,27 +42,15 @@ public class RoomService : IRoomService
         var dto = _mapper.Map<RoomOut>((room, player));
         return Result.Ok(dto);
     }
-
-    public async Task<Result<RoomOut>> GetRoomByCodeAsync(string code)
-    {
-        var room = await GetRoomEntityByCodeAsync(code);
-        if (room == null)
-        {
-            return Result.Fail(new NotFoundError("Room with the specified code was not found"));
-        }
-        var dto = _mapper.Map<RoomOut>(room);
-        return Result.Ok(dto);
-    }
     
     private async Task<Room?> GetRoomEntityByCodeAsync(string code)
     {
         var room = await _context.Rooms.Include(r => r.Players)
             .FirstOrDefaultAsync(r => r.Code == code);
-
         return room;
     }
     
-    public async Task<Result<RoomOut>> GetRoomByYourPlayerSessionAsync(string sessionToken)
+    public async Task<Result<RoomOut>> GetRoomByPlayerSessionAsync(string sessionToken)
     {
         var player = await _context.Players.FirstOrDefaultAsync(p => p.SessionToken == sessionToken);
         if (player == null)
@@ -76,7 +64,17 @@ public class RoomService : IRoomService
         var dto = _mapper.Map<RoomOut>((room, player));
         return Result.Ok(dto);
     }
-    
+
+    public async Task<Result<bool>> IsRoomJoinable(string code)
+    {
+        var room = await GetRoomEntityByCodeAsync(code);
+        if (room == null)
+        {
+            return Result.Fail(new NotFoundError($"Room with code {code} was not found"));
+        } 
+        return Result.Ok(room.Status == Room.RoomStatus.Lobby);
+    }
+
     public async Task<Result<RoomOut>> JoinRoomAsync(string code, string playerName)
     {
         await using var transaction = await _context.Database.BeginTransactionAsync();

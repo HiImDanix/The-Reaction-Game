@@ -1,4 +1,7 @@
+using System.Reflection;
 using Application;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -26,6 +29,12 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     {
         options.Filters.Add<GlobalExceptionHandler>();
     });
+    
+    // FluentValidation
+    services.AddFluentValidationAutoValidation();
+    services.AddFluentValidationClientsideAdapters();
+    builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+    
 
     // Swagger/OpenAPI
     services.AddEndpointsApiExplorer();

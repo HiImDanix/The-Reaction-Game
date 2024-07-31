@@ -1,4 +1,6 @@
-﻿namespace Contracts.Input;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Contracts.Input;
 
 public class CreateRoomRequest
 {

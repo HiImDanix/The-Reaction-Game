@@ -18,6 +18,7 @@ namespace Integration;
 public class RoomControllerIntegrationTests : IClassFixture<WebApplicationFactory<Program>>, IAsyncDisposable
 {
     private const string RoomEndpoint = "/Rooms";
+    private static string JoinRoomEndpoint(string code) => $"/RoomCodes/{code}";
     
     private readonly WebApplicationFactory<Program> _factory;
     private readonly IFixture _fixture;
@@ -36,10 +37,8 @@ public class RoomControllerIntegrationTests : IClassFixture<WebApplicationFactor
         // Arrange
         var request = _fixture.Build<CreateRoomRequest>()
             .With(o => o.PlayerName, "baisicName").Create();
-
         // Act
         var response = await _client.PostAsJsonAsync(RoomEndpoint, request);
-
         // Assert
         response.EnsureSuccessStatusCode();
         var roomResponse = await response.Content.ReadFromJsonAsync<RoomOut>();
@@ -70,12 +69,34 @@ public class RoomControllerIntegrationTests : IClassFixture<WebApplicationFactor
         // Arrange
         var request = _fixture.Build<CreateRoomRequest>()
             .With(o => o.PlayerName, playerName).Create();
-
         // Act
         var response = await _client.PostAsJsonAsync(RoomEndpoint, request);
-        
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task VerifyRoomIsJoinable_Returns200_WhenValid()
+    {
+        // Arrange
+        var createRoomRequest = _fixture.Create<CreateRoomRequest>();
+        var createRoomResponse = await _client.PostAsJsonAsync(RoomEndpoint, createRoomRequest);
+        var roomResponse = await createRoomResponse.Content.ReadFromJsonAsync<RoomOut>();
+        // Act
+        var response = await _client.GetAsync(JoinRoomEndpoint(roomResponse.Code));
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+    
+    [Fact]
+    public async Task VerifyRoomIsJoinable_Returns404_WhenRoomDoesNotExist()
+    {
+        // Arrange
+        var code = "nonExistentCode";
+        // Act
+        var response = await _client.GetAsync(JoinRoomEndpoint(code));
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     private static void ConfigureTestServices(IWebHostBuilder builder)
@@ -100,7 +121,6 @@ public class RoomControllerIntegrationTests : IClassFixture<WebApplicationFactor
     
     public async ValueTask DisposeAsync()
     {
-        _client.Dispose();
         await _factory.DisposeAsync();
     }
 

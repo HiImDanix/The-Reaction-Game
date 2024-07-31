@@ -4,7 +4,6 @@ using Contracts.Input;
 
 namespace ReaktlyC.Controllers;
 
-[Route("rooms")]
 public class RoomController : ResultControllerBase
 {
     
@@ -15,7 +14,7 @@ public class RoomController : ResultControllerBase
         _roomService = roomService;
     }
     
-    [HttpPost]
+    [HttpPost("rooms")]
     public async Task<IActionResult> CreateRoom(CreateRoomRequest request)
     {
         
@@ -23,22 +22,22 @@ public class RoomController : ResultControllerBase
         return ResponseFromResult(room);
     }
     
-    [HttpGet("roomCode")]
+    [HttpGet("RoomCodes/{code}")]
     public async Task<IActionResult> VerifyRoomIsJoinable(string code)
     {
         var room = await _roomService.IsRoomJoinable(code);
         
         return room.IsSuccess ? Ok() : ResponseFromErrors(room.Errors);
     }
-
-    [HttpPost("join")]
+    
+    [HttpPost("rooms/join")]
     public async Task<IActionResult> JoinRoom(JoinRoomRequest req)
     {
         var room = await _roomService.JoinRoomAsync(req.Code, req.PlayerName);
         return ResponseFromResult(room);
     }
     
-    [HttpGet]
+    [HttpGet("rooms")]
     public async Task<IActionResult> GetRoomByPlayerSession()
     {
         var sessionToken = Request.Headers["Authorization"].FirstOrDefault();

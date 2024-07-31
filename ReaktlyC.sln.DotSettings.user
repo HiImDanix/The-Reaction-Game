@@ -17,6 +17,6 @@
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=e552338d_002D57db_002D401e_002Dba5d_002Dfbaaa4eea2dc/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="CreateRoom_Returns400_WhenPlayerNameIsNotValid" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;xUnit::3AF6B091-6E6D-4C06-B038-764BED4B5AC1::net7.0::Integration.RoomControllerIntegrationTests.CreateRoom_Returns400_WhenPlayerNameIsNotValid&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::3AF6B091-6E6D-4C06-B038-764BED4B5AC1::net7.0::Integration.RoomControllerIntegrationTests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

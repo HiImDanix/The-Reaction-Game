@@ -1,6 +1,6 @@
 ﻿namespace Contracts.Input;
 
-public record CreateRoomRequest
+public class CreateRoomRequest
 {
-    public string PlayerName { get; }
+    public string PlayerName { get; set; }
 }

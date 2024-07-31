@@ -7,6 +7,6 @@ public class CreateRoomValidator: AbstractValidator<CreateRoomRequest>
 {
     public CreateRoomValidator()
     {
-        RuleFor(x => x.PlayerName).Length(3, 20);
+        RuleFor(x => x.PlayerName).NotEmpty().Length(3, 20);
     }
 }

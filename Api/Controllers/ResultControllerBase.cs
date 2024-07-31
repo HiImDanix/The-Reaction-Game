@@ -15,18 +15,22 @@ public class ResultControllerBase : ControllerBase
     //     _logger = logger;
     // }
 
-    protected IActionResult FromResult<T>(Result<T> result)
+    protected IActionResult ResponseFromResult<T>(Result<T> result)
     {
         if (result.IsSuccess)
         {
             return result.Value == null ? NoContent() : Ok(result.Value);
         }
 
-        return FromErrors(result.Errors);
+        return ResponseFromErrors(result.Errors);
     }
 
-    protected IActionResult FromErrors(List<IError> errors)
+    protected IActionResult ResponseFromErrors(List<IError> errors)
     {
+        if (errors.Count == 0)
+        {
+            return StatusCode((int)HttpStatusCode.InternalServerError);
+        }
         var primaryError = errors.FirstOrDefault();
         var statusCode = GetStatusCodeForError(primaryError);
 

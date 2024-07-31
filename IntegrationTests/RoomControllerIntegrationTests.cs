@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using System.Net;
+using System.Net.Http.Json;
 using AutoFixture;
 using Infrastructure;
 using Xunit;
@@ -16,7 +17,7 @@ namespace Integration;
 
 public class RoomControllerIntegrationTests : IClassFixture<WebApplicationFactory<Program>>, IAsyncDisposable
 {
-    private const string RoomEndpoint = "/Room";
+    private const string RoomEndpoint = "/Rooms";
     
     private readonly WebApplicationFactory<Program> _factory;
     private readonly IFixture _fixture;
@@ -33,7 +34,8 @@ public class RoomControllerIntegrationTests : IClassFixture<WebApplicationFactor
     public async Task CreateRoom_ReturnsCreatedRoom()
     {
         // Arrange
-        var request = _fixture.Create<CreateRoomRequest>();
+        var request = _fixture.Build<CreateRoomRequest>()
+            .With(o => o.PlayerName, "baisicName").Create();
 
         // Act
         var response = await _client.PostAsJsonAsync(RoomEndpoint, request);
@@ -56,6 +58,24 @@ public class RoomControllerIntegrationTests : IClassFixture<WebApplicationFactor
         roomResponse.Host.Should().Match<PlayerOut>(h => 
             h.Id == roomResponse.Players[0].Id && 
             h.Name == request.PlayerName);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("s")]
+    [InlineData("      ")]
+    [InlineData("SomeReallyFreakingExtremelyLongDisplayNameThatSomePersonChoseJustForFun")]
+    public async Task CreateRoom_Returns400_WhenPlayerNameIsNotValid(string playerName)
+    {
+        // Arrange
+        var request = _fixture.Build<CreateRoomRequest>()
+            .With(o => o.PlayerName, playerName).Create();
+
+        // Act
+        var response = await _client.PostAsJsonAsync(RoomEndpoint, request);
+        
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     private static void ConfigureTestServices(IWebHostBuilder builder)

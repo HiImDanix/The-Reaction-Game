@@ -20,7 +20,7 @@ public class RoomController : ResultControllerBase
     {
         
         var room = await _roomService.CreateRoomAsync(request.PlayerName);
-        return FromResult(room);
+        return ResponseFromResult(room);
     }
     
     [HttpGet("roomCode")]
@@ -28,14 +28,14 @@ public class RoomController : ResultControllerBase
     {
         var room = await _roomService.IsRoomJoinable(code);
         
-        return room.IsSuccess ? Ok() : FromErrors(room.Errors);
+        return room.IsSuccess ? Ok() : ResponseFromErrors(room.Errors);
     }
 
     [HttpPost("join")]
     public async Task<IActionResult> JoinRoom(JoinRoomRequest req)
     {
         var room = await _roomService.JoinRoomAsync(req.Code, req.PlayerName);
-        return FromResult(room);
+        return ResponseFromResult(room);
     }
     
     [HttpGet]
@@ -50,6 +50,6 @@ public class RoomController : ResultControllerBase
         // TODO: Authorize the player. Create a filter for this.
         
         var room = await _roomService.GetRoomByPlayerSessionAsync(sessionToken);
-        return FromResult(room);
+        return ResponseFromResult(room);
     }
 }

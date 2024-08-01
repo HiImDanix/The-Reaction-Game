@@ -23,7 +23,7 @@ public class RoomController : ResultControllerBase
     }
     
     [HttpGet("RoomCodes/{code}")]
-    public async Task<IActionResult> VerifyRoomIsJoinable(string code)
+    public async Task<IActionResult> IsRoomJoinable(string code)
     {
         var room = await _roomService.IsRoomJoinable(code);
         

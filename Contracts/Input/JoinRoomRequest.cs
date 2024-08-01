@@ -1,7 +1,7 @@
 ﻿namespace Contracts.Input;
 
-public record JoinRoomRequest
+public class JoinRoomRequest
 {
-    public string Code { get; }
-    public string PlayerName { get; }
+    public string Code { get; set; }
+    public string PlayerName { get; set; }
 }

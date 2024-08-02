@@ -18,8 +18,8 @@ namespace Integration;
 public class RoomControllerIntegrationTests : IClassFixture<WebApplicationFactory<Program>>, IAsyncDisposable
 {
     private const string RoomEndpoint = "/Rooms";
-    private static string VerifyRoomCodeEndpoint(string code) => $"/RoomCodes/{code}";
-    private const string JoinRoomEndpoint = $"{RoomEndpoint}/join";
+    private static string VerifyRoomCodeEndpoint(string code) => $"rooms/by-code/{code}/joinable";
+    private static string JoinRoomEndpoint(string code) => $"{RoomEndpoint}/by-code/{code}/players";
     
     private readonly WebApplicationFactory<Program> _factory;
     private readonly IFixture _fixture;
@@ -121,9 +121,8 @@ public class RoomControllerIntegrationTests : IClassFixture<WebApplicationFactor
         var createRoomResponse = await _client.PostAsJsonAsync(RoomEndpoint, createRoomRequest);
         var roomResponse = await createRoomResponse.Content.ReadFromJsonAsync<RoomCreatedPersonalResp>();
         var joinRoomRequest = _fixture.Create<JoinRoomReq>();
-        joinRoomRequest.Code = roomResponse.Room.Code;
         // Act
-        var response = await _client.PostAsJsonAsync(JoinRoomEndpoint, joinRoomRequest);
+        var response = await _client.PostAsJsonAsync(JoinRoomEndpoint(roomResponse.Room.Code), joinRoomRequest);
         // Assert: Successful response
         response.EnsureSuccessStatusCode();
         var roomJoinedResp = await response.Content.ReadFromJsonAsync<RoomJoinedPersonalResp>();
@@ -150,8 +149,9 @@ public class RoomControllerIntegrationTests : IClassFixture<WebApplicationFactor
     {
         // Arrange
         var joinRoomRequest = _fixture.Create<JoinRoomReq>();
+        var roomCode = _fixture.Create<string>();
         // Act
-        var response = await _client.PostAsJsonAsync(JoinRoomEndpoint, joinRoomRequest);
+        var response = await _client.PostAsJsonAsync(JoinRoomEndpoint(roomCode), joinRoomRequest);
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
@@ -168,11 +168,10 @@ public class RoomControllerIntegrationTests : IClassFixture<WebApplicationFactor
         var createRoomResponse = await _client.PostAsJsonAsync(RoomEndpoint, createRoomRequest);
         var roomResponse = await createRoomResponse.Content.ReadFromJsonAsync<RoomResp>();
         var joinRoomRequest = _fixture.Build<JoinRoomReq>()
-            .With(o => o.Code, roomResponse.Code)
             .With(o => o.PlayerName, playerName)
             .Create();
         // Act
-        var response = await _client.PostAsJsonAsync(JoinRoomEndpoint, joinRoomRequest);
+        var response = await _client.PostAsJsonAsync(JoinRoomEndpoint(roomResponse.Code), joinRoomRequest);
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }

@@ -23,7 +23,7 @@ public class RoomController : ResultControllerBase
         return ResponseFromResult(room);
     }
     
-    [HttpGet("RoomCodes/{code}")]
+    [HttpGet("rooms/by-code/{code}/joinable")]
     public async Task<IActionResult> IsRoomJoinable(string code)
     {
         var room = await _roomService.IsRoomJoinable(code);
@@ -31,10 +31,10 @@ public class RoomController : ResultControllerBase
         return room.IsSuccess ? Ok() : ResponseFromErrors(room.Errors);
     }
     
-    [HttpPost("rooms/join")]
-    public async Task<IActionResult> JoinRoom(JoinRoomReq req)
+    [HttpPost("rooms/by-code/{code}/players")]
+    public async Task<IActionResult> JoinRoom(string code, JoinRoomReq req)
     {
-        var room = await _roomService.JoinRoomAsync(req.Code, req.PlayerName);
+        var room = await _roomService.JoinRoomAsync(code, req.PlayerName);
         return ResponseFromResult(room);
     }
     

@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace ReaktlyC.Validators;
 
-public class CreateRoomValidator: AbstractValidator<CreateRoomRequest>
+public class CreateRoomValidator: AbstractValidator<CreateRoomReq>
 {
     public CreateRoomValidator()
     {

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Application;
 using Contracts.Input;
+using ReaktlyC.Middlewares;
 
 namespace ReaktlyC.Controllers;
 
@@ -15,10 +16,10 @@ public class RoomController : ResultControllerBase
     }
     
     [HttpPost("rooms")]
-    public async Task<IActionResult> CreateRoom(CreateRoomRequest request)
+    public async Task<IActionResult> CreateRoom(CreateRoomReq req)
     {
         
-        var room = await _roomService.CreateRoomAsync(request.PlayerName);
+        var room = await _roomService.CreateRoomAsync(req.PlayerName);
         return ResponseFromResult(room);
     }
     
@@ -31,24 +32,18 @@ public class RoomController : ResultControllerBase
     }
     
     [HttpPost("rooms/join")]
-    public async Task<IActionResult> JoinRoom(JoinRoomRequest req)
+    public async Task<IActionResult> JoinRoom(JoinRoomReq req)
     {
         var room = await _roomService.JoinRoomAsync(req.Code, req.PlayerName);
         return ResponseFromResult(room);
     }
     
-    [HttpGet("rooms")]
+    [RequirePlayerAuth]
+    [HttpGet("rooms/me")]
     public async Task<IActionResult> GetRoomByPlayerSession()
     {
-        var sessionToken = Request.Headers["Authorization"].FirstOrDefault();
-        if (string.IsNullOrEmpty(sessionToken))
-        {
-            return Unauthorized("Authorization header is missing");
-        }
-        
-        // TODO: Authorize the player. Create a filter for this.
-        
-        var room = await _roomService.GetRoomByPlayerSessionAsync(sessionToken);
+        var roomId = HttpContext.GetRoomId();
+        var room = await _roomService.GetRoomById(roomId);
         return ResponseFromResult(room);
     }
 }

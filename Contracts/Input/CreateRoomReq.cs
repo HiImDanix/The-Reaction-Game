@@ -2,7 +2,7 @@
 
 namespace Contracts.Input;
 
-public class CreateRoomRequest
+public class CreateRoomReq
 {
     public string PlayerName { get; set; }
 }

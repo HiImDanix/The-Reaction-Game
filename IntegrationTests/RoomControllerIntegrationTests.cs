@@ -32,11 +32,11 @@ public class RoomControllerIntegrationTests : IClassFixture<WebApplicationFactor
         _fixture = new Fixture();
         
         // PlayerName should be between 3 and 20 characters long
-        _fixture.Customize<CreateRoomRequest>(composer =>
+        _fixture.Customize<CreateRoomReq>(composer =>
             composer.With(x => x.PlayerName, () => 
                 _fixture.Create<string>().Substring(2, 20)));
         
-        _fixture.Customize<JoinRoomRequest>(composer =>
+        _fixture.Customize<JoinRoomReq>(composer =>
             composer.With(x => x.PlayerName, () => 
                 _fixture.Create<string>().Substring(2, 20)));
     }
@@ -45,26 +45,30 @@ public class RoomControllerIntegrationTests : IClassFixture<WebApplicationFactor
     public async Task CreateRoom_ReturnsCreatedRoom()
     {
         // Arrange
-        var request = _fixture.Create<CreateRoomRequest>();
+        var request = _fixture.Create<CreateRoomReq>();
         // Act
         var response = await _client.PostAsJsonAsync(RoomEndpoint, request);
-        // Assert
+        // Assert: Successful response
         response.EnsureSuccessStatusCode();
-        var roomResponse = await response.Content.ReadFromJsonAsync<RoomOut>();
-        
-        roomResponse.Should().NotBeNull();
-        roomResponse.Id.Should().NotBeEmpty();
-        roomResponse.Code.Should().NotBeEmpty();
-        roomResponse.Status.Should().Be(RoomOut.RoomStatus.Lobby);
-
-        roomResponse.Players.Should().ContainSingle()
-            .Which.Should().Match<PlayerOut>(
+        var roomCreatedResponse = await response.Content.ReadFromJsonAsync<RoomCreatedPersonalResp>();
+        // Assert: session token and created player details exist
+        roomCreatedResponse.SessionToken.Should().NotBeEmpty();
+        roomCreatedResponse.You.Should().Match<PlayerResp>(
+            p => p.Id.Length != 0 && 
+                 p.Id != Guid.Empty.ToString() && 
+                 p.Name == request.PlayerName);
+        // Assert: room details
+        var room = roomCreatedResponse.Room;
+        room.Id.Should().NotBeEmpty();
+        room.Code.Should().NotBeEmpty();
+        room.Status.Should().Be(RoomResp.RoomStatus.Lobby);
+        room.Players.Should().ContainSingle()
+            .Which.Should().Match<PlayerResp>(
                 p => p.Id.Length != 0 && 
                      p.Id != Guid.Empty.ToString() && 
                      p.Name == request.PlayerName);
-        
-        roomResponse.Host.Should().Match<PlayerOut>(h => 
-            h.Id == roomResponse.Players[0].Id && 
+        room.Host.Should().Match<PlayerResp>(h => 
+            h.Id == room.Players[0].Id && 
             h.Name == request.PlayerName);
     }
 
@@ -76,7 +80,7 @@ public class RoomControllerIntegrationTests : IClassFixture<WebApplicationFactor
     public async Task CreateRoom_Returns400_WhenPlayerNameIsNotValid(string playerName)
     {
         // Arrange
-        var request = _fixture.Build<CreateRoomRequest>()
+        var request = _fixture.Build<CreateRoomReq>()
             .With(x => x.PlayerName, playerName)
             .Create();
         // Act
@@ -86,14 +90,14 @@ public class RoomControllerIntegrationTests : IClassFixture<WebApplicationFactor
     }
 
     [Fact]
-    public async Task IsRoomJoinable_Returns200_WhenValid()
+    public async Task IsRoomCodeValid_Returns200_WhenValid()
     {
         // Arrange
-        var createRoomRequest = _fixture.Create<CreateRoomRequest>();
+        var createRoomRequest = _fixture.Create<CreateRoomReq>();
         var createRoomResponse = await _client.PostAsJsonAsync(RoomEndpoint, createRoomRequest);
-        var roomResponse = await createRoomResponse.Content.ReadFromJsonAsync<RoomOut>();
+        var roomResponse = await createRoomResponse.Content.ReadFromJsonAsync<RoomCreatedPersonalResp>();
         // Act
-        var response = await _client.GetAsync(VerifyRoomCodeEndpoint(roomResponse.Code));
+        var response = await _client.GetAsync(VerifyRoomCodeEndpoint(roomResponse.Room.Code));
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
@@ -113,32 +117,39 @@ public class RoomControllerIntegrationTests : IClassFixture<WebApplicationFactor
     public async Task JoinRoom_AddsNewPlayerToRoom_WhenRoomIsJoinable()
     {
         // Arrange
-        var createRoomRequest = _fixture.Create<CreateRoomRequest>();
+        var createRoomRequest = _fixture.Create<CreateRoomReq>();
         var createRoomResponse = await _client.PostAsJsonAsync(RoomEndpoint, createRoomRequest);
-        var roomResponse = await createRoomResponse.Content.ReadFromJsonAsync<RoomOut>();
-        var joinRoomRequest = _fixture.Build<JoinRoomRequest>()
-            .With(o => o.Code, roomResponse.Code)
-            .Create();
+        var roomResponse = await createRoomResponse.Content.ReadFromJsonAsync<RoomCreatedPersonalResp>();
+        var joinRoomRequest = _fixture.Create<JoinRoomReq>();
+        joinRoomRequest.Code = roomResponse.Room.Code;
         // Act
         var response = await _client.PostAsJsonAsync(JoinRoomEndpoint, joinRoomRequest);
-        // Assert
+        // Assert: Successful response
         response.EnsureSuccessStatusCode();
-        var joinedRoomResponse = await response.Content.ReadFromJsonAsync<RoomOut>();
-        joinedRoomResponse.Should().NotBeNull();
-        joinedRoomResponse.Players[1].Should().Match<PlayerOut>(
+        var roomJoinedResp = await response.Content.ReadFromJsonAsync<RoomJoinedPersonalResp>();
+        // Assert: session token and created player details exist
+        roomJoinedResp.SessionToken.Should().NotBeEmpty();
+        roomJoinedResp.You.Should().Match<PlayerResp>(
+            p => p.Id.Length != 0 && 
+                 p.Id != Guid.Empty.ToString() && 
+                 p.Name == joinRoomRequest.PlayerName);
+        // Assert: room details
+        var room = roomJoinedResp.Room;
+        room.Should().NotBeNull();
+        room.Players[1].Should().Match<PlayerResp>(
                 p => p.Id.Length != 0 && 
                      p.Id != Guid.Empty.ToString() && 
                      p.Name == joinRoomRequest.PlayerName);
-        joinedRoomResponse.Host.Should().Match<PlayerOut>(h => 
-            h.Id == roomResponse.Players[0].Id && 
-            h.Name == roomResponse.Players[0].Name);
+        room.Host.Should().Match<PlayerResp>(h => 
+            h.Id == room.Players[0].Id && 
+            h.Name == room.Players[0].Name);
     }
     
     [Fact]
     public async Task JoinRoom_Returns404_WhenRoomDoesNotExist()
     {
         // Arrange
-        var joinRoomRequest = _fixture.Create<JoinRoomRequest>();
+        var joinRoomRequest = _fixture.Create<JoinRoomReq>();
         // Act
         var response = await _client.PostAsJsonAsync(JoinRoomEndpoint, joinRoomRequest);
         // Assert
@@ -153,10 +164,10 @@ public class RoomControllerIntegrationTests : IClassFixture<WebApplicationFactor
     public async Task JoinRoom_Returns400_WhenPlayerNameIsNotValid(string playerName)
     {
         // Arrange
-        var createRoomRequest = _fixture.Create<CreateRoomRequest>();
+        var createRoomRequest = _fixture.Create<CreateRoomReq>();
         var createRoomResponse = await _client.PostAsJsonAsync(RoomEndpoint, createRoomRequest);
-        var roomResponse = await createRoomResponse.Content.ReadFromJsonAsync<RoomOut>();
-        var joinRoomRequest = _fixture.Build<JoinRoomRequest>()
+        var roomResponse = await createRoomResponse.Content.ReadFromJsonAsync<RoomResp>();
+        var joinRoomRequest = _fixture.Build<JoinRoomReq>()
             .With(o => o.Code, roomResponse.Code)
             .With(o => o.PlayerName, playerName)
             .Create();

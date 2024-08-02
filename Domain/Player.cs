@@ -11,8 +11,6 @@ public class Player
     [Required]
     public string Name { get; set; }
 
-    [Required] public string SessionToken { get; set; } = $"SESSION_{Guid.NewGuid():N}";
-
     public Room Room;
     
     public Player(string name)

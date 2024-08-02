@@ -1,14 +1,21 @@
-using System.Reflection;
 using Application;
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using ReaktlyC;
 using DbContext = Infrastructure.DbContext;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add .NET Secrets
+builder.Configuration.AddUserSecrets<Program>();
+
+// Check if secrets have been added
+if (string.IsNullOrEmpty(builder.Configuration["Jwt:SECRET_KEY"]))
+{
+    throw new Exception("JWT secret is missing. Please add it to the user secrets.");
+}
 
 // Add services to the container
 ConfigureServices(builder.Services, builder.Configuration);
@@ -53,6 +60,8 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 
     // Application services
     services.AddScoped<IRoomService, RoomService>();
+    services.AddScoped<IAuthService, AuthService>();
+    
 
     // Add any additional service configurations here
 }

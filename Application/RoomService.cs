@@ -1,7 +1,6 @@
 ﻿using Application.Errors;
 using AutoMapper;
 using Contracts.Output;
-using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Domain;
 using FluentResults;
@@ -13,14 +12,16 @@ public class RoomService : IRoomService
 {
     private readonly DbContext _context;
     private readonly IMapper _mapper;
+    private readonly IAuthService _authService;
 
-    public RoomService(IMapper mapper, DbContext context)
+    public RoomService(IMapper mapper, DbContext context, IAuthService authService)
     {
         _mapper = mapper;
         _context = context;
+        _authService = authService;
     }
 
-    public async Task<Result<RoomOut>> CreateRoomAsync(string hostName)
+    public async Task<Result<RoomCreatedPersonalResp>> CreateRoomAsync(string hostName)
     {
         var player = new Player(hostName);
         var room = new Room(player);
@@ -33,15 +34,16 @@ public class RoomService : IRoomService
             await _context.SaveChangesAsync();
             await _context.Entry(room).Collection(r => r.Players).LoadAsync();
             await transaction.CommitAsync();
+            
+            var token = _authService.GenerateToken(player.Id, room.Id, player.Name);
+            var dto = _mapper.Map<RoomCreatedPersonalResp>((room, player, token));
+            return Result.Ok(dto);
         }
         catch
         {
             await transaction.RollbackAsync();
             throw;
         }
-
-        var dto = _mapper.Map<RoomOut>((room, player));
-        return Result.Ok(dto);
     }
     
     private async Task<Room?> GetRoomEntityByCodeAsync(string code)
@@ -51,18 +53,15 @@ public class RoomService : IRoomService
         return room;
     }
     
-    public async Task<Result<RoomOut>> GetRoomByPlayerSessionAsync(string sessionToken)
+    public async Task<Result<RoomResp>> GetRoomById(string roomId)
     {
-        var player = await _context.Players.FirstOrDefaultAsync(p => p.SessionToken == sessionToken);
-        if (player == null)
+        var room = await _context.Rooms.FirstOrDefaultAsync(r => r.Id == roomId);
+        if (room == null)
         {
-            return Result.Fail(new NotFoundError("Player with the specified session token was not found"));
+            return Result.Fail(new NotFoundError($"Room with id {roomId} was not found"));
         }
-
-        var room = await _context.Rooms.Include(r => r.Players)
-            .FirstOrDefaultAsync(r => r.Players.Contains(player));
         
-        var dto = _mapper.Map<RoomOut>((room, player));
+        var dto = _mapper.Map<RoomResp>(room);
         return Result.Ok(dto);
     }
 
@@ -76,7 +75,7 @@ public class RoomService : IRoomService
         return Result.Ok(room.Status == Room.RoomStatus.Lobby);
     }
 
-    public async Task<Result<RoomOut>> JoinRoomAsync(string code, string playerName)
+    public async Task<Result<RoomJoinedPersonalResp>> JoinRoomAsync(string code, string playerName)
     {
         await using var transaction = await _context.Database.BeginTransactionAsync();
         try
@@ -99,8 +98,9 @@ public class RoomService : IRoomService
             await _context.SaveChangesAsync();
             await _context.Entry(room).Collection(r => r.Players).LoadAsync();
             await transaction.CommitAsync();
-            
-            var dto = _mapper.Map<RoomOut>((room, player));
+
+            var token = _authService.GenerateToken(player.Id, room.Id, player.Name);
+            var dto = _mapper.Map<RoomJoinedPersonalResp>((room, player, token));
             return Result.Ok(dto);
         }
         catch

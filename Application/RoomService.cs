@@ -35,7 +35,7 @@ public class RoomService : IRoomService
             await _context.Entry(room).Collection(r => r.Players).LoadAsync();
             await transaction.CommitAsync();
             
-            var token = _authService.GenerateToken(player.Id, room.Id, player.Name);
+            var token = _authService.GenerateToken(player.Id, player.Name, room.Id);
             var dto = _mapper.Map<RoomCreatedPersonalResp>((room, player, token));
             return Result.Ok(dto);
         }
@@ -55,7 +55,7 @@ public class RoomService : IRoomService
     
     public async Task<Result<RoomResp>> GetRoomById(string roomId)
     {
-        var room = await _context.Rooms.FirstOrDefaultAsync(r => r.Id == roomId);
+        var room = await _context.Rooms.Include(r => r.Players).FirstOrDefaultAsync(r => r.Id == roomId);
         if (room == null)
         {
             return Result.Fail(new NotFoundError($"Room with id {roomId} was not found"));
@@ -99,7 +99,7 @@ public class RoomService : IRoomService
             await _context.Entry(room).Collection(r => r.Players).LoadAsync();
             await transaction.CommitAsync();
 
-            var token = _authService.GenerateToken(player.Id, room.Id, player.Name);
+            var token = _authService.GenerateToken(player.Id, player.Name, room.Id);
             var dto = _mapper.Map<RoomJoinedPersonalResp>((room, player, token));
             return Result.Ok(dto);
         }

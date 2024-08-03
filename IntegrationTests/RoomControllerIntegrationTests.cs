@@ -166,14 +166,43 @@ public class RoomControllerIntegrationTests : IClassFixture<WebApplicationFactor
         // Arrange
         var createRoomRequest = _fixture.Create<CreateRoomReq>();
         var createRoomResponse = await _client.PostAsJsonAsync(RoomEndpoint, createRoomRequest);
-        var roomResponse = await createRoomResponse.Content.ReadFromJsonAsync<RoomResp>();
+        var roomResponse = await createRoomResponse.Content.ReadFromJsonAsync<RoomCreatedPersonalResp>();
         var joinRoomRequest = _fixture.Build<JoinRoomReq>()
             .With(o => o.PlayerName, playerName)
             .Create();
         // Act
-        var response = await _client.PostAsJsonAsync(JoinRoomEndpoint(roomResponse.Code), joinRoomRequest);
+        var response = await _client.PostAsJsonAsync(JoinRoomEndpoint(roomResponse.Room.Code), joinRoomRequest);
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task GetRoomByPlayerSession_ReturnsRoom_WhenSessionIsValid()
+    {
+        // Arrange
+        var createRoomRequest = _fixture.Create<CreateRoomReq>();
+        var createRoomResponse = await _client.PostAsJsonAsync(RoomEndpoint, createRoomRequest);
+        var roomResponse = await createRoomResponse.Content.ReadFromJsonAsync<RoomCreatedPersonalResp>();
+        var sessionToken = roomResponse.SessionToken;
+        // Act - get with Authorization header
+        var headers = _client.DefaultRequestHeaders;
+        headers.Add("Authorization", sessionToken);
+        var response = await _client.GetAsync($"{RoomEndpoint}/me");
+        // Assert
+        response.EnsureSuccessStatusCode();
+    }
+    
+    [Fact]
+    public async Task GetRoomByPlayerSession_Returns401_WhenSessionIsInvalid()
+    {
+        // Arrange
+        var token = "invalid_token";
+        // Act - get with Authorization header
+        var headers = _client.DefaultRequestHeaders;
+        headers.Add("Authorization", token);
+        var response = await _client.GetAsync($"{RoomEndpoint}/me");
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     private static void ConfigureTestServices(IWebHostBuilder builder)

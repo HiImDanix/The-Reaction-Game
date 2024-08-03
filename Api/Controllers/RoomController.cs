@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Application;
 using Contracts.Input;
-using ReaktlyC.Middlewares;
+using ReaktlyC.Attributes;
 
 namespace ReaktlyC.Controllers;
 

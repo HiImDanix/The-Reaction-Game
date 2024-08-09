@@ -42,7 +42,6 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     services.AddFluentValidationAutoValidation();
     services.AddFluentValidationClientsideAdapters();
     builder.Services.AddValidatorsFromAssemblyContaining<Program>();
-    
 
     // Swagger/OpenAPI
     services.AddEndpointsApiExplorer();
@@ -64,6 +63,17 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     
 
     // Add any additional service configurations here
+    // CORS
+    services.AddCors(options =>
+    {
+        options.AddPolicy("CorsPolicy", b =>
+        {
+            b.AllowAnyHeader()
+                .AllowAnyMethod()
+                .SetIsOriginAllowed(_ => true)
+                .AllowCredentials();
+        });
+    });
 }
 
 // Application configuration
@@ -79,11 +89,13 @@ void ConfigureApp(WebApplication appBuilder)
     // Global middleware
     appBuilder.UseHttpsRedirection();
     appBuilder.UseAuthorization();
+    appBuilder.UseCors("CorsPolicy");
 
     // Controller routing
     appBuilder.MapControllers();
 
     // Add any additional middleware or app configurations here
+    
 }
 
 // needed for integration tests

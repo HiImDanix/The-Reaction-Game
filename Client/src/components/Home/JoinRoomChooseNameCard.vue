@@ -1,0 +1,39 @@
+<template>
+  <div class="flex flex-col items-center space-y-6 max-w-3xl">
+    <h1 class="text-5xl text-primary font-mono font-bold">What shall we call you?</h1>
+    <form class="flex flex-col space-y-2" @submit.prevent="submitName">
+      <input type="text" v-model="name" class="input input-bordered" placeholder="Daniel" />
+      <button class="btn btn-primary">Join Room</button>
+    </form>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import {postJoinRoom} from "@/Api/Api";
+
+const props = defineProps({
+  roomCode: {
+    type: String,
+  }
+});
+
+const emit = defineEmits(['roomJoined']);
+
+const name = ref('');
+
+const submitName = async () => {
+  if ((name.value.trim())) {
+    await postJoinRoom(props.roomCode, name.value).then(() => {
+      // TODO: store in store
+    }).then((room) => {
+      emit('roomJoined');
+      console.log(room);
+      alert('Room joined');
+    }).catch((e) => {
+      console.error(e);
+      throw e;
+    });
+  }
+}
+</script>

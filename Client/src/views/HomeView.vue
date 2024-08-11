@@ -39,6 +39,8 @@ import BackgroundComponent from "@/components/Home/BackgroundComponent.vue";
 import CreateRoomChooseNameCard from "@/components/Home/CreateRoomChooseNameCard.vue";
 import JoinRoomChooseNameCard from "@/components/Home/JoinRoomChooseNameCard.vue";
 import LobbyCard from "@/components/Home/LobbyCard.vue";
+import type {Room, RoomCreated, RoomJoined} from "@/Models/RoomModels";
+import {useRoomStore} from "@/stores/RoomStore";
 
 const roomCode = ref('');
 
@@ -51,12 +53,16 @@ enum View {
 
 const currentView = ref<View>(View.CallToAction);
 
-const onRoomCreated = (room) => {
+const roomStore = useRoomStore();
+
+const onRoomCreated = (r: RoomCreated) => {
   currentView.value = View.Lobby;
+  roomStore.setRoom(r.room);
 }
 
-const onRoomJoined = (room) => {
+const onRoomJoined = (r: RoomJoined) => {
   currentView.value = View.Lobby;
+  roomStore.setRoom(r.room);
 }
 
 const onRoomCodeIsJoinable = (code) => {

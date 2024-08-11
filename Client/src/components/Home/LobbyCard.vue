@@ -1,3 +1,23 @@
 <template>
-  <h1 class="text-white text-4xl">Welcome to the lobby</h1>
+  <div>
+    <h1 class="text-white text-4xl">Welcome to the lobby</h1>
+    <p class="text-white">Game code: {{room.code}}</p>
+    <p class="text-white">Players:</p>
+    <ul class="text-white">
+      <li v-for="player in room.players" :key="player.id">{{player.name}}</li>
+    </ul>
+    <p class="text-white">Host: {{room.host.name}}</p>
+    <p class="text-white">Id: {{room.id}}</p>
+    <p class="text-white">Status: {{room.status}}</p>
+  </div>
 </template>
+
+<script setup lang="ts">
+
+import {useRoomStore} from "@/stores/RoomStore";
+
+const roomStore = useRoomStore();
+
+const room = roomStore.room;
+
+</script>

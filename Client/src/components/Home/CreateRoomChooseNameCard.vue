@@ -11,6 +11,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import {postCreateRoom} from "@/Api/Api";
+import type {RoomCreated} from "@/Models/RoomModels";
 
 const emit = defineEmits(['roomCreated']);
 
@@ -18,13 +19,8 @@ const name = ref('');
 
 const submitName = async () => {
   if ((name.value.trim())) {
-    await postCreateRoom(name.value).then(() => {
-      // TODO: store in store
-
-    }).then((room) => {
-      emit('roomCreated');
-      console.log(room);
-      alert('Room created');
+    await postCreateRoom(name.value).then((r: RoomCreated) => {
+      emit('roomCreated', r);
     }).catch((e) => {
       console.error(e);
       throw e;

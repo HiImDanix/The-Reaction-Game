@@ -11,6 +11,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import {postJoinRoom} from "@/Api/Api";
+import type {RoomJoined} from "@/Models/RoomModels";
 
 const props = defineProps({
   roomCode: {
@@ -24,12 +25,8 @@ const name = ref('');
 
 const submitName = async () => {
   if ((name.value.trim())) {
-    await postJoinRoom(props.roomCode, name.value).then(() => {
-      // TODO: store in store
-    }).then((room) => {
-      emit('roomJoined');
-      console.log(room);
-      alert('Room joined');
+    await postJoinRoom(props.roomCode, name.value).then((r: RoomJoined) => {
+      emit('roomJoined', r);
     }).catch((e) => {
       console.error(e);
       throw e;

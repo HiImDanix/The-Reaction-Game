@@ -21,7 +21,6 @@ export async function getIsRoomJoinable(roomCode: string): Promise<boolean> {
 export async function postCreateRoom(playerName: string): Promise<RoomCreated> {
     try {
         const r = await apiClient.post('/rooms', {playerName});
-        console.log(r);
         return r.data;
     } catch (error) {
         console.error(error);
@@ -31,7 +30,8 @@ export async function postCreateRoom(playerName: string): Promise<RoomCreated> {
 
 export async function postJoinRoom(roomCode: string, playerName: string): Promise<RoomJoined> {
     try {
-        await apiClient.post(`/rooms/by-code/${roomCode}/players`, {playerName});
+        const r = await apiClient.post(`/rooms/by-code/${roomCode}/players`, {playerName});
+        return r.data;
     } catch (error) {
         console.error(error);
         throw error;

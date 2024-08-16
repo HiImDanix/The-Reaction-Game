@@ -1,9 +1,15 @@
+using System.Text;
 using Application;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.IdentityModel.Tokens;
 using ReaktlyC;
+using ReaktlyC.Authorization;
+using ReaktlyC.Hubs;
 using DbContext = Infrastructure.DbContext;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -61,6 +67,9 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     services.AddScoped<IRoomService, RoomService>();
     services.AddScoped<IAuthService, AuthService>();
     
+    // Hubs
+    services.AddScoped<ILobbyHub, LobbyHub>();
+    
 
     // Add any additional service configurations here
     // CORS
@@ -74,11 +83,58 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
                 .AllowCredentials();
         });
     });
+    
+    // Authentication
+    services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    }).AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:SECRET_KEY"])),
+            ValidateIssuer = true,
+            ValidIssuer = builder.Configuration["JWT:ISSUER"],
+            ValidateAudience = true,
+            ValidAudience = builder.Configuration["JWT:AUDIENCE"],
+            ValidateLifetime = true,
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            }
+        };
+    });
+    
+    // Authorization
+    services.AddAuthorization(options =>
+    {
+        options.AddPolicy("PlayerAuth", policy =>
+        {
+            policy.Requirements.Add(new PlayerAuthRequirement());
+        });
+    });
+    services.AddScoped<IAuthorizationHandler, PlayerAuthHandler>();
+    
+    services.AddSignalR();
+    
 }
 
 // Application configuration
 void ConfigureApp(WebApplication appBuilder)
 {
+    appBuilder.UseCors("CorsPolicy");
+    
     // Development-specific middleware
     if (appBuilder.Environment.IsDevelopment())
     {
@@ -88,11 +144,15 @@ void ConfigureApp(WebApplication appBuilder)
 
     // Global middleware
     appBuilder.UseHttpsRedirection();
+    appBuilder.UseAuthentication();
     appBuilder.UseAuthorization();
-    appBuilder.UseCors("CorsPolicy");
+    
 
     // Controller routing
     appBuilder.MapControllers();
+    
+    // Hubs
+    appBuilder.MapHub<LobbyHub>("/lobbyHub");
 
     // Add any additional middleware or app configurations here
     

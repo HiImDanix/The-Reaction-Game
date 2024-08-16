@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
 using AutoFixture;
-using Infrastructure;
 using Xunit;
 using Contracts.Input;
 using Contracts.Output;
@@ -186,20 +185,20 @@ public class RoomControllerIntegrationTests : IClassFixture<WebApplicationFactor
         var sessionToken = roomResponse.SessionToken;
         // Act - get with Authorization header
         var headers = _client.DefaultRequestHeaders;
-        headers.Add("Authorization", sessionToken);
+        headers.Add("Authorization", $"Bearer {sessionToken}");
         var response = await _client.GetAsync($"{RoomEndpoint}/me");
         // Assert
         response.EnsureSuccessStatusCode();
     }
     
-    [Fact]
-    public async Task GetRoomByPlayerSession_Returns401_WhenSessionIsInvalid()
+    [Theory]
+    [InlineData("invalid_token")]
+    [InlineData("Bearer invalid_token")]
+    public async Task GetRoomByPlayerSession_Returns401_WhenSessionIsInvalid(string invalidToken)
     {
-        // Arrange
-        var token = "invalid_token";
         // Act - get with Authorization header
         var headers = _client.DefaultRequestHeaders;
-        headers.Add("Authorization", token);
+        headers.Add("Authorization", invalidToken);
         var response = await _client.GetAsync($"{RoomEndpoint}/me");
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);

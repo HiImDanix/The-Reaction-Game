@@ -2,7 +2,7 @@ import axios from 'axios'
 import type {RoomCreated, RoomJoined} from "@/Models/RoomModels";
 
 const apiClient = axios.create({
-    baseURL: 'http://localhost:5083', //TODO: put in Config
+    baseURL: 'https://localhost:7211', //TODO: put in Config
     headers: {
         'Content-Type': 'application/json'
     }

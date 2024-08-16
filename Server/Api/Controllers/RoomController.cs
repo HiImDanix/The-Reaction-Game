@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Application;
 using Contracts.Input;
+using Microsoft.AspNetCore.Authorization;
 using ReaktlyC.Attributes;
+using ReaktlyC.Extensions;
 
 namespace ReaktlyC.Controllers;
 
@@ -18,7 +20,6 @@ public class RoomController : ResultControllerBase
     [HttpPost("rooms")]
     public async Task<IActionResult> CreateRoom(CreateRoomReq req)
     {
-        
         var room = await _roomService.CreateRoomAsync(req.PlayerName);
         return ResponseFromResult(room);
     }
@@ -27,7 +28,6 @@ public class RoomController : ResultControllerBase
     public async Task<IActionResult> IsRoomJoinable(string code)
     {
         var room = await _roomService.IsRoomJoinable(code);
-        
         return room.IsSuccess ? Ok() : ResponseFromErrors(room.Errors);
     }
     
@@ -38,8 +38,9 @@ public class RoomController : ResultControllerBase
         return ResponseFromResult(room);
     }
     
-    [RequirePlayerAuth]
+    
     [HttpGet("rooms/me")]
+    [Authorize(Policy = "PlayerAuth")]
     public async Task<IActionResult> GetRoomByPlayerSession()
     {
         var roomId = HttpContext.GetRoomId();

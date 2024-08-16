@@ -1,14 +1,18 @@
 import {ref} from 'vue'
 import type {Ref} from "vue";
 import { defineStore } from 'pinia'
-import type {Room} from "@/Models/RoomModels";
+import type {Player, Room} from "@/Models/RoomModels";
 
 export const useRoomStore = defineStore('room', () => {
-  const room: Ref<Room> = ref(null);
+    const room: Ref<Room> = ref(null);
 
     function setRoom(newRoom: Room): void {
         room.value = newRoom;
     }
 
-  return {room, setRoom}
+    function addPlayer(player: Player): void {
+        room.value.players.push(player);
+    }
+
+    return {room, setRoom, addPlayer}
 })

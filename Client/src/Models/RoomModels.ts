@@ -36,3 +36,7 @@ export enum RoomStatus {
     InProgress,
     Finished,
 }
+
+export interface PlayerJoinedMsg {
+    player: Player;
+}

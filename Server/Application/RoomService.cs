@@ -1,6 +1,7 @@
 ﻿using Application.Errors;
 using AutoMapper;
 using Contracts.Output;
+using Contracts.Output.Hub;
 using Microsoft.EntityFrameworkCore;
 using Domain;
 using FluentResults;
@@ -13,12 +14,14 @@ public class RoomService : IRoomService
     private readonly DbContext _context;
     private readonly IMapper _mapper;
     private readonly IAuthService _authService;
+    private readonly ILobbyHub _lobbyHub;
 
-    public RoomService(IMapper mapper, DbContext context, IAuthService authService)
+    public RoomService(IMapper mapper, DbContext context, IAuthService authService, ILobbyHub lobbyHub)
     {
         _mapper = mapper;
         _context = context;
         _authService = authService;
+        _lobbyHub = lobbyHub;
     }
 
     public async Task<Result<RoomCreatedPersonalResp>> CreateRoomAsync(string hostName)
@@ -100,8 +103,11 @@ public class RoomService : IRoomService
             await transaction.CommitAsync();
 
             var token = _authService.GenerateToken(player.Id, player.Name, room.Id);
-            var dto = _mapper.Map<RoomJoinedPersonalResp>((room, player, token));
-            return Result.Ok(dto);
+            
+            var hubDto = _mapper.Map<PlayerJoinedMessage>(player);
+            await _lobbyHub.NotifyPlayerJoined(room.Id, hubDto);
+            var dtoPersonal = _mapper.Map<RoomJoinedPersonalResp>((room, player, token));
+            return Result.Ok(dtoPersonal);
         }
         catch
         {

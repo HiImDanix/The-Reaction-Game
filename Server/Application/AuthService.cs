@@ -11,12 +11,16 @@ public class AuthService: IAuthService
     private readonly IConfiguration _configuration;
     private string SecretKey;
     private readonly SymmetricSecurityKey _signingKey;
+    private readonly string _issuer;
+    private readonly string _audience;
     
     public AuthService(IConfiguration configuration)
     {
         _configuration = configuration;
         SecretKey = _configuration["JWT:SECRET_KEY"] ?? throw new ArgumentNullException("SECRET_KEY is missing");
         _signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SecretKey));
+        _issuer = _configuration["JWT:ISSUER"] ?? throw new ArgumentNullException("ISSUER is missing");
+        _audience = _configuration["JWT:AUDIENCE"] ?? throw new ArgumentNullException("AUDIENCE is missing");
     }
     
     public string GenerateToken(string playerId, string playerName, string roomId)
@@ -33,32 +37,34 @@ public class AuthService: IAuthService
                 new Claim("roomId", roomId),
             }),
             Expires = DateTime.UtcNow.AddHours(24),
-            SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256Signature)
+            SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256Signature),
+            Issuer = _issuer,
+            Audience = _audience
         };
         var token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);
     }
 
-    public bool ValidateToken(string token)
-    {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        try
-        {
-            tokenHandler.ValidateToken(token, new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = _signingKey,
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ClockSkew = TimeSpan.Zero
-            }, out _);
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
-    }
+    // public bool ValidateToken(string token)
+    // {
+    //     var tokenHandler = new JwtSecurityTokenHandler();
+    //     try
+    //     {
+    //         tokenHandler.ValidateToken(token, new TokenValidationParameters
+    //         {
+    //             ValidateIssuerSigningKey = true,
+    //             IssuerSigningKey = _signingKey,
+    //             ValidateIssuer = false,
+    //             ValidateAudience = false,
+    //             ClockSkew = TimeSpan.Zero
+    //         }, out _);
+    //         return true;
+    //     }
+    //     catch
+    //     {
+    //         return false;
+    //     }
+    // }
 
     public string ExtractPlayerIdFromToken(string token)
     {

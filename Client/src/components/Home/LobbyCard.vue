@@ -13,11 +13,8 @@
 </template>
 
 <script setup lang="ts">
+import {useRoomSignalR} from "@/stores/useRoomSignalR";
 
-import {useRoomStore} from "@/stores/RoomStore";
 
-const roomStore = useRoomStore();
-
-const room = roomStore.room;
-
+const { room } = useRoomSignalR();
 </script>

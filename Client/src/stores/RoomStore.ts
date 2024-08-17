@@ -10,11 +10,15 @@ export const useRoomStore = defineStore('room', () => {
         room.value = newRoom;
     }
 
+    function clearRoom(): void {
+        room.value = null;
+    }
+
     function addPlayer(player: Player): void {
         if (!room.value) return;
         if (room.value.players.some(p => p.id === player.id)) return;
         room.value.players.push(player);
     }
 
-    return {room, setRoom, addPlayer}
+    return {room, setRoom, clearRoom, addPlayer}
 })

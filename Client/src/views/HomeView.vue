@@ -2,7 +2,7 @@
   <div class="min-h-screen flex flex-col" data-theme="emerald">
     <BackgroundComponent />
     <transition name="navbar-fade">
-      <div class="navbar bg-black bg-opacity-60" v-if="currentView != View.CallToAction && currentView != View.Lobby">
+      <div class="navbar bg-black bg-opacity-60" v-if="currentView != View.CallToAction">
         <button @click="onGoBack" class="btn btn-circle bg-transparent border-none text-white hover:text-black">
           <i class="fas fa-arrow-left"></i>
         </button>
@@ -88,7 +88,17 @@ const onRoomCodeIsJoinable = (code: string) => {
 }
 
 const onGoBack = () => {
-  currentView.value = View.CallToAction;
+  if (currentView.value === View.Lobby) {
+    if (confirm('Are you sure you want to leave the room?')) {
+      userStore.logout();
+      roomStore.clearRoom();
+      currentView.value = View.CallToAction;
+    }
+
+  } else {
+    currentView.value = View.CallToAction;
+  }
+
 }
 </script>
 

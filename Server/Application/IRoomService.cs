@@ -9,4 +9,5 @@ public interface IRoomService
     Task<Result<RoomJoinedPersonalResp>> JoinRoomAsync(string code, string playerName);
     Task<Result<bool>> IsRoomJoinable(string code);
     Task<Result<RoomResp>> GetRoomById(string roomId);
+    Task StartGame(string roomId);
 }

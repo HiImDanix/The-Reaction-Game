@@ -48,4 +48,13 @@ public class RoomController : ResultControllerBase
         var room = await _roomService.GetRoomById(roomId);
         return ResponseFromResult(room);
     }
+    
+    [HttpPost("me/start-game")]
+    [Authorize(Policy = "PlayerAuth")]
+    public async Task<IActionResult> StartGame()
+    {
+        var roomId = HttpContext.GetRoomId();
+        await _roomService.StartGame(roomId);
+        return Ok();
+    }
 }

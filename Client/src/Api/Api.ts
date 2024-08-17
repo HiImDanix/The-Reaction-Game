@@ -59,6 +59,15 @@ export const Api = {
             console.error(error);
             throw error;
         }
+    },
+
+    async postStartGame(): Promise<void> {
+        try {
+            await apiClient.post('/rooms/me/start-game');
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
     }
 }
 

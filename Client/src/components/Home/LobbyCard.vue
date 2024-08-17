@@ -9,6 +9,7 @@
     <p class="text-white">Host: {{room.host.name}}</p>
     <p class="text-white">Id: {{room.id}}</p>
     <p class="text-white">Status: {{room.status}}</p>
+    <button @click="startGame" class="btn border-none text-black btn-wide mt-3">Start game</button>
   </div>
   <div v-else>
     <div class="loading loading-spinner loading-lg text-white"></div>
@@ -19,12 +20,15 @@
 import {establishRoomConnection} from "@/stores/establishRoomConnection";
 import {useRoomStore} from "@/stores/RoomStore";
 import {storeToRefs} from "pinia";
-
-
+import {Api} from "@/Api/Api";
 
 establishRoomConnection();
 
 const roomStore = useRoomStore();
 const { room } = storeToRefs(roomStore);
+
+const startGame = () => {
+  Api.postStartGame();
+}
 
 </script>

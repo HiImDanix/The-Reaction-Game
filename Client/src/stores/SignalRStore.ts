@@ -15,7 +15,7 @@ export const useSignalRStore = defineStore('signalR', () => {
     const connectionState = ref<ConnectionState>(ConnectionState.Disconnected);
     const subscriptions = ref<{ message: string; callback: (data: any) => void }[]>([]);
 
-    async function connect(): Promise<void> {
+    async function connect(token: string): Promise<void> {
         if (connectionState.value === ConnectionState.Connected) {
             console.debug('SignalR connection already established.');
             return;
@@ -29,12 +29,10 @@ export const useSignalRStore = defineStore('signalR', () => {
         const maxRetries = 3;
         let retryCount = 0;
         let retryDelay = 1000;
-        const token = (await useUserStore()).getToken();
-        console.log('Token:', token);
         while (retryCount < maxRetries) {
             try {
                 connection.value = new HubConnectionBuilder()
-                    .withUrl('https://localhost:7211/lobbyHub', {
+                    .withUrl('http://localhost:5083/lobbyHub', {
                         accessTokenFactory: () => token
                     })
                     .withAutomaticReconnect()
@@ -44,7 +42,6 @@ export const useSignalRStore = defineStore('signalR', () => {
                 connectionState.value = ConnectionState.Connected;
                 console.debug('SignalR connection established.');
 
-                // Subscribe to all previously subscribed messages
                 subscriptions.value.forEach(subscription => {
                     console.debug('Subscribing to message:', subscription.message);
                     connection.value.on(subscription.message, subscription.callback);

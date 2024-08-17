@@ -30,7 +30,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import {getIsRoomJoinable, postCreateRoom} from "@/Api/Api";
+import {Api} from "@/Api/Api";
 
 const roomCode = ref('');
 
@@ -45,7 +45,7 @@ const joinGame = () => {
     alert('Please enter a game code');
     return;
   }
-  getIsRoomJoinable(roomCode.value).then((isJoinable) => {
+  Api.getIsRoomJoinable(roomCode.value).then((isJoinable) => {
     if (isJoinable) {
       emit('roomCodeIsJoinable', roomCode.value);
     } else {

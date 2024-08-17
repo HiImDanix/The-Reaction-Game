@@ -2,10 +2,13 @@ import { onMounted, onUnmounted } from 'vue';
 import { useRoomStore } from "@/stores/RoomStore";
 import { useSignalRStore } from "@/stores/SignalRStore";
 import type { PlayerJoinedMsg, Room } from "@/Models/RoomModels";
+import {useUserStore} from "@/stores/UserStore";
+import {Api} from "@/Api/Api";
 
-export function useRoomSignalR() {
+export function establishRoomConnection() {
   const roomStore = useRoomStore();
   const signalRStore = useSignalRStore();
+  const userStore = useUserStore();
 
   const setupSignalRSubscriptions = () => {
     signalRStore.subscribe('PlayerJoined', (dto: PlayerJoinedMsg) => {
@@ -20,15 +23,12 @@ export function useRoomSignalR() {
   };
 
   onMounted(async () => {
-    await signalRStore.connect();
+    const token = await userStore.getToken();
+    if (!token) {
+      throw new Error('No token found. Cannot establish SignalR connection.');
+    }
+    await signalRStore.connect(token);
     setupSignalRSubscriptions();
+    roomStore.setRoom(await Api.getRoom());
   });
-
-  onUnmounted(async () => {
-    await signalRStore.disconnect();
-  });
-
-  return {
-    room: roomStore.room,
-  };
 }

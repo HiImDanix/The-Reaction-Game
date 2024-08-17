@@ -13,8 +13,15 @@
 </template>
 
 <script setup lang="ts">
-import {useRoomSignalR} from "@/stores/useRoomSignalR";
+import {establishRoomConnection} from "@/stores/establishRoomConnection";
+import {useRoomStore} from "@/stores/RoomStore";
+import {storeToRefs} from "pinia";
 
 
-const { room } = useRoomSignalR();
+
+establishRoomConnection();
+
+const roomStore = useRoomStore();
+const { room } = storeToRefs(roomStore);
+
 </script>

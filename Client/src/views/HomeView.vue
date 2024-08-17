@@ -34,14 +34,15 @@
 
 <script setup lang="ts">
 import JoinOrCreateRoomCard from '../components/Home/JoinOrCreateRoomCard.vue'
-import { ref } from 'vue'
+import {onMounted, ref} from 'vue'
 import BackgroundComponent from "@/components/Home/BackgroundComponent.vue";
 import CreateRoomChooseNameCard from "@/components/Home/CreateRoomChooseNameCard.vue";
 import JoinRoomChooseNameCard from "@/components/Home/JoinRoomChooseNameCard.vue";
 import LobbyCard from "@/components/Home/LobbyCard.vue";
-import type {Room, RoomCreated, RoomJoined} from "@/Models/RoomModels";
+import type {RoomCreated, RoomJoined} from "@/Models/RoomModels";
 import {useRoomStore} from "@/stores/RoomStore";
 import {useUserStore} from "@/stores/UserStore";
+import {Api} from "@/Api/Api";
 
 const roomCode = ref('');
 
@@ -57,6 +58,18 @@ const currentView = ref<View>(View.CallToAction);
 const roomStore = useRoomStore();
 const userStore = useUserStore();
 
+onMounted(async () => {
+  if (userStore.user) {
+    try {
+      const room = await Api.getRoom();
+      roomStore.setRoom(room);
+      currentView.value = View.Lobby;
+    } catch (e) {
+      console.error(e);
+    }
+  }
+});
+
 const onRoomCreated = (r: RoomCreated) => {
   userStore.setUser(r.you, r.sessionToken);
   roomStore.setRoom(r.room);
@@ -69,7 +82,7 @@ const onRoomJoined = (r: RoomJoined) => {
   currentView.value = View.Lobby;
 }
 
-const onRoomCodeIsJoinable = (code) => {
+const onRoomCodeIsJoinable = (code: string) => {
   roomCode.value = code;
   currentView.value = View.JoinGameChooseName;
 }

@@ -7,6 +7,7 @@ using ReaktlyC.Extensions;
 
 namespace ReaktlyC.Controllers;
 
+[Route("rooms")]
 public class RoomController : ResultControllerBase
 {
     
@@ -17,21 +18,21 @@ public class RoomController : ResultControllerBase
         _roomService = roomService;
     }
     
-    [HttpPost("rooms")]
+    [HttpPost("")]
     public async Task<IActionResult> CreateRoom(CreateRoomReq req)
     {
         var room = await _roomService.CreateRoomAsync(req.PlayerName);
         return ResponseFromResult(room);
     }
     
-    [HttpGet("rooms/by-code/{code}/joinable")]
+    [HttpGet("by-code/{code}/joinable")]
     public async Task<IActionResult> IsRoomJoinable(string code)
     {
         var room = await _roomService.IsRoomJoinable(code);
         return room.IsSuccess ? Ok() : ResponseFromErrors(room.Errors);
     }
     
-    [HttpPost("rooms/by-code/{code}/players")]
+    [HttpPost("by-code/{code}/players")]
     public async Task<IActionResult> JoinRoom(string code, JoinRoomReq req)
     {
         var room = await _roomService.JoinRoomAsync(code, req.PlayerName);
@@ -39,7 +40,7 @@ public class RoomController : ResultControllerBase
     }
     
     
-    [HttpGet("rooms/me")]
+    [HttpGet("me")]
     [Authorize(Policy = "PlayerAuth")]
     public async Task<IActionResult> GetRoomByPlayerSession()
     {

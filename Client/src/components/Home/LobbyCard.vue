@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="room != null">
     <h1 class="text-white text-4xl">Welcome to the lobby</h1>
     <p class="text-white">Game code: {{room.code}}</p>
     <p class="text-white">Players:</p>
@@ -9,6 +9,9 @@
     <p class="text-white">Host: {{room.host.name}}</p>
     <p class="text-white">Id: {{room.id}}</p>
     <p class="text-white">Status: {{room.status}}</p>
+  </div>
+  <div v-else>
+    <div class="loading loading-spinner loading-lg text-white"></div>
   </div>
 </template>
 

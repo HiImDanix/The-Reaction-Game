@@ -62,7 +62,6 @@ onMounted(async () => {
   if (userStore.user) {
     try {
       const room = await Api.getRoom();
-      roomStore.setRoom(room);
       currentView.value = View.Lobby;
     } catch (e) {
       console.error(e);
@@ -72,13 +71,11 @@ onMounted(async () => {
 
 const onRoomCreated = (r: RoomCreated) => {
   userStore.setUser(r.you, r.sessionToken);
-  roomStore.setRoom(r.room);
   currentView.value = View.Lobby;
 }
 
 const onRoomJoined = (r: RoomJoined) => {
   userStore.setUser(r.you, r.sessionToken);
-  roomStore.setRoom(r.room);
   currentView.value = View.Lobby;
 }
 

@@ -1,8 +1,12 @@
 # The Reaction Game
+<b>The Reaction Game</b> is a dynamic party game platform designed to test your reflexes and quick thinking. Gather your friends, create a room, and dive into a series of fast-paced mini-games that will keep everyone on their toes!
 
-![The Reaction Game Logo](https://github.com/user-attachments/assets/8ee2c699-ce4f-47fa-b9e6-f907c22edeb1)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/f506cfcb-78ae-4bd4-81be-6799ecfc60f2" alt="The Reaction Game Logo" width="650"/>
+</p>
 
-The Reaction Game is an exciting party game platform that tests your reflexes and quick thinking. Challenge your friends in fast-paced mini-games!
+
+
 
 ## 🚀 Features
 
@@ -21,10 +25,6 @@ Currently in prototype stage. Active development ongoing.
 
 - **Started**: July 26, 2024
 - **Development**: Solo project
-
-## 🔮 Vision
-
-Create a versatile platform for hosting and playing various reaction-based games with friends.
 
 ## 🔗 Links
 

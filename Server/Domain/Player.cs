@@ -10,8 +10,6 @@ public class Player
     
     [Required]
     public string Name { get; set; }
-
-    public Room Room;
     
     public Player(string name)
     {

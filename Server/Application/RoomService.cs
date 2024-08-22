@@ -115,9 +115,4 @@ public class RoomService : IRoomService
             throw;
         }
     }
-    
-    public Task StartGame(string roomId)
-    {
-        throw new NotImplementedException();
-    }
 }

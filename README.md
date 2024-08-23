@@ -29,6 +29,7 @@ Currently in prototype stage. Active development ongoing.
 ## 🔗 Links
 
 - [Trello Board](https://trello.com/b/WFAAOLVO/reaktlyc)
+- [Product Requirements](https://dkanepe.notion.site/Product-requirements-d386f2729f7943e58dcc1cb2d9eecb96)
 - [Original Java Version](https://github.com/HiImDanix/Reaktly)
 
 ---

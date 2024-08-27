@@ -12,10 +12,12 @@ public class RoomController : ResultControllerBase
 {
     
     private readonly IRoomService _roomService;
+    private readonly IGameService _gameService;
 
-    public RoomController(IRoomService roomService)
+    public RoomController(IRoomService roomService, IGameService gameService)
     {
         _roomService = roomService;
+        _gameService = gameService;
     }
     
     [HttpPost("")]
@@ -54,7 +56,7 @@ public class RoomController : ResultControllerBase
     public async Task<IActionResult> StartGame()
     {
         var roomId = HttpContext.GetRoomId();
-        await _roomService.StartGame(roomId);
-        return Ok();
+        var result = await _gameService.StartGame(roomId); // TODO: proper result response
+        return ResponseFromResult(result);
     }
 }

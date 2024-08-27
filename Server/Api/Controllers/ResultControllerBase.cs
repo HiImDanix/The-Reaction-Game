@@ -24,6 +24,11 @@ public class ResultControllerBase : ControllerBase
 
         return ResponseFromErrors(result.Errors);
     }
+    
+    protected IActionResult ResponseFromResult(Result result)
+    {
+        return result.IsSuccess ? NoContent() : ResponseFromErrors(result.Errors);
+    }
 
     protected IActionResult ResponseFromErrors(List<IError> errors)
     {

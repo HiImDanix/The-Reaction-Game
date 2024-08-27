@@ -2,15 +2,15 @@ using System.Text;
 using Application;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Hangfire;
+using Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using ReaktlyC;
 using ReaktlyC.Authorization;
 using ReaktlyC.Hubs;
-using DbContext = Infrastructure.DbContext;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,14 +57,16 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
     // Database context
-    services.AddDbContext<DbContext>(options =>
+    services.AddDbContext<Repository>(options =>
     {
-        options.UseInMemoryDatabase("Rooms");
-        options.ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
+        options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
+            b => b.MigrationsAssembly("Api"));
+        
     });
 
     // Application services
     services.AddScoped<IRoomService, RoomService>();
+    services.AddScoped<IGameService, GameService>();
     services.AddScoped<IAuthService, AuthService>();
     
     // Hubs
@@ -127,6 +129,14 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     services.AddScoped<IAuthorizationHandler, PlayerAuthHandler>();
     
     services.AddSignalR();
+    
+    services.AddHangfire(c => c
+        .UseSqlServerStorage(configuration.GetConnectionString("DefaultConnection"))
+        .UseFilter(new AutomaticRetryAttribute { Attempts = 0 })
+    );
+    services.AddHangfireServer();
+    
+    // Add any additional service configurations here
     
 }
 

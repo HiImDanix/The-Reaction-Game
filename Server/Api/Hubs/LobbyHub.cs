@@ -1,6 +1,7 @@
 ﻿using Application;
 using Contracts.Output;
 using Contracts.Output.Hub;
+using Domain;
 using Microsoft.AspNetCore.SignalR;
 
 namespace ReaktlyC.Hubs;
@@ -24,6 +25,17 @@ public class LobbyHub: BaseHub, ILobbyHub
     {
         await SendToRoom(roomId, MessageType.PlayerJoined.ToString(), msg);
     }
-    
-    
+
+    public Task NotifyMiniGameStartedShowInstructions(string roomId, string miniGameName, string miniGameInstructions,
+        TimeSpan miniGameInstructionsDuration)
+    {
+        Console.WriteLine("Mini game started: show instructions");
+        return Task.CompletedTask;
+    }
+
+    public Task NotifyGameStatusChanged(string roomId, Game.GameStatus inProgress)
+    {
+        Console.WriteLine("Game status changed");
+        return Task.CompletedTask;
+    }
 }

@@ -1,29 +1,13 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=3b282e8a_002D2a00_002D407d_002D8919_002D6881a159ec25/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="VerifyRoomIsJoinable_Returns404_WhenRoomDoesNotExist" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;xUnit::3AF6B091-6E6D-4C06-B038-764BED4B5AC1::net7.0::Integration.RoomControllerIntegrationTests&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=73e213ea_002D12c6_002D48d2_002Dbfdd_002D0ff89eee3a35/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="CreateRoom_Returns400_WhenPlayerNameIsNotBetweenLimits" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;xUnit::3AF6B091-6E6D-4C06-B038-764BED4B5AC1::net7.0::Integration.RoomControllerIntegrationTests.CreateRoom_Returns400_WhenPlayerNameIsNotBetweenLimits&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::3AF6B091-6E6D-4C06-B038-764BED4B5AC1::net7.0::Integration.RoomControllerIntegrationTests.CreateRoom_ReturnsCreatedRoom&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=74f6d65b_002D3de2_002D42e3_002Dac3d_002D11a969e0add1/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="CreateRoomAsync_ShouldCreateNewRoomWithHost" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;xUnit::3AF6B091-6E6D-4C06-B038-764BED4B5AC1::net7.0::Integration.RoomControllerIntegrationTests&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=9798cba4_002D77b0_002D466d_002Dab90_002D0f414f1cdecd/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="CreateRoom_Returns400_WhenPlayerNameIsNotBetweenLimits #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	
+	
+	
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=9798cba4_002D77b0_002D466d_002Dab90_002D0f414f1cdecd/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="CreateRoom_Returns400_WhenPlayerNameIsNotBetweenLimits #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;xUnit::3AF6B091-6E6D-4C06-B038-764BED4B5AC1::net7.0::Integration.RoomControllerIntegrationTests.VerifyRoomIsJoinable_Returns200_WhenValid&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::3AF6B091-6E6D-4C06-B038-764BED4B5AC1::net7.0::Integration.RoomControllerIntegrationTests.VerifyRoomIsJoinable_Returns404_WhenRoomDoesNotExist&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::3AF6B091-6E6D-4C06-B038-764BED4B5AC1::net7.0::Integration.RoomControllerIntegrationTests.JoinRoom_AddsNewPlayerToRoom_WhenRoomIsJoinable&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::3AF6B091-6E6D-4C06-B038-764BED4B5AC1::net7.0::Integration.GameEngineTests.GameEngine_Works&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=e552338d_002D57db_002D401e_002Dba5d_002Dfbaaa4eea2dc/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="CreateRoom_Returns400_WhenPlayerNameIsNotValid" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;xUnit::3AF6B091-6E6D-4C06-B038-764BED4B5AC1::net7.0::Integration.RoomControllerIntegrationTests&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
+	</wpf:ResourceDictionary>

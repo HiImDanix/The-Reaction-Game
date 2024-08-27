@@ -4,5 +4,5 @@ public static class ColorTapConstants
 {
     public const string Name = "Color Tap";
     public const string Instructions = "Tap when the color matches the word!";
-    public static readonly TimeSpan RoundDuration = TimeSpan.FromSeconds(10);
+    public static readonly TimeSpan RoundDuration = TimeSpan.FromSeconds(5);
 }

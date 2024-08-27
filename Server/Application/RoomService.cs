@@ -5,18 +5,18 @@ using Contracts.Output.Hub;
 using Microsoft.EntityFrameworkCore;
 using Domain;
 using FluentResults;
-using DbContext = Infrastructure.DbContext;
+using Infrastructure;
 
 namespace Application;
 
 public class RoomService : IRoomService
 {
-    private readonly DbContext _context;
+    private readonly Repository _context;
     private readonly IMapper _mapper;
     private readonly IAuthService _authService;
     private readonly ILobbyHub _lobbyHub;
 
-    public RoomService(IMapper mapper, DbContext context, IAuthService authService, ILobbyHub lobbyHub)
+    public RoomService(IMapper mapper, Repository context, IAuthService authService, ILobbyHub lobbyHub)
     {
         _mapper = mapper;
         _context = context;
@@ -75,7 +75,7 @@ public class RoomService : IRoomService
         {
             return Result.Fail(new NotFoundError($"Room with code {code} was not found"));
         } 
-        return Result.Ok(room.Status == Room.RoomStatus.Lobby);
+        return Result.Ok(room.Game.Status == Game.GameStatus.NotStarted);
     }
 
     public async Task<Result<RoomJoinedPersonalResp>> JoinRoomAsync(string code, string playerName)
@@ -89,9 +89,9 @@ public class RoomService : IRoomService
                 return Result.Fail(new NotFoundError("Room with the specified code was not found"));
             }
             
-            if (room.Status != Room.RoomStatus.Lobby)
+            if (room.Game.Status != Game.GameStatus.NotStarted)
             {
-                return Result.Fail(new BusinessValidationError("The room is already in progress"));
+                return Result.Fail(new BusinessValidationError("The room is already in-game. Cannot join"));
             }
             
             var player = new Player(playerName);

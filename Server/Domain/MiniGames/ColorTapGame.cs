@@ -19,4 +19,8 @@ public class ColorTapGame : MiniGame
     {
     }
     
+    protected ColorTapGame()
+    {
+    }
+    
 }

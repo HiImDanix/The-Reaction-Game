@@ -8,34 +8,24 @@ public class Room
 {
     private static readonly Random Random = new Random();
     
-    public enum RoomStatus
-    {
-        Lobby,
-        Starting,
-        InProgress,
-        Finished
-    }
-    
     [Key]
     public string Id { get; set; } = Guid.NewGuid().ToString();
     [Required]
     [MaxLength(RoomConstants.MaxCodeLength)]
     public string Code { get; set; }
-    public RoomStatus Status { get; set; }
     [Range(1, RoomConstants.MaxPlayers)]
     public List<Player> Players { get; private set; }  = new();
     [Required]
-    public Player Host { get; set; }
+    public string HostId { get; set; }
     public List<Game> PastGames { get; set; } = new();
-    public Game? CurrentGame { get; set; }
+    public Game Game { get; set; } = new();
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
 
     public Room(Player host)
     {
         Code = GenerateRoomCode();
-        Status = RoomStatus.Lobby;
-        Host = host;
+        HostId = host.Id;
         Players.Add(host);
     }
     

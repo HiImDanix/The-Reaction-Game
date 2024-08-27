@@ -5,12 +5,12 @@ using Xunit;
 using Contracts.Input;
 using Contracts.Output;
 using FluentAssertions;
+using Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
-using DbContext = Infrastructure.DbContext;
 
 namespace Integration;
 
@@ -209,14 +209,14 @@ public class RoomControllerIntegrationTests : IClassFixture<WebApplicationFactor
         builder.ConfigureServices(services =>
         {
             var descriptor = services.SingleOrDefault(
-                d => d.ServiceType == typeof(DbContextOptions<DbContext>));
+                d => d.ServiceType == typeof(DbContextOptions<Repository>));
 
             if (descriptor != null)
             {
                 services.Remove(descriptor);
             }
 
-            services.AddDbContext<DbContext>(options =>
+            services.AddDbContext<Repository>(options =>
             {
                 options.UseInMemoryDatabase("InMemoryDbForTesting")
                     .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));

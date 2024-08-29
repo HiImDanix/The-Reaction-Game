@@ -1,23 +1,31 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Domain.Constants;
+using Domain.MiniGames;
 
 namespace Domain;
 
 public class Game
 {
+    // TODO: change enum names, also dto and frontend
     public enum GameStatus
     {
-        NotStarted,
+        Lobby,
         PrepareToStart,
         InProgress,
-        Finished
+        FinalScoreboard
     }
     
     [Key]
     public string Id { get; private set; } = Guid.NewGuid().ToString();
     public ICollection<MiniGame> MiniGames { get; set; } = new List<MiniGame>();
-    public MiniGame? CurrentMiniGame { get; set; } = null;
-    public ICollection<PlayerScore> PlayerScores { get; set; } = new List<PlayerScore>();
-    public GameStatus Status { get; set; } = GameStatus.NotStarted;
-    public DateTime StartTime { get; set; } = DateTime.UtcNow;
-    public TimeSpan PreparationTime { get; set; } = TimeSpan.FromSeconds(4);
+    public MiniGame? CurrentMiniGame { get; set; }
+    public ICollection<PlayerScore> Scoreboard { get; set; } = new List<PlayerScore>();
+    public GameStatus Status { get; set; } = GameStatus.Lobby;
+    public DateTime? StartClickedAt { get; set; }
+    [NotMapped]
+    public DateTime? PreparationStartTime => StartClickedAt;
+    public TimeSpan PreparationDuration { get; set; } = GameConstants.PreparationTime;
+    [NotMapped]
+    public DateTime? PreparationEndTime => StartClickedAt?.Add(PreparationDuration);
 }

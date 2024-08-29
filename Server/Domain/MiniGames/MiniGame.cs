@@ -1,9 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Domain;
-
-
+namespace Domain.MiniGames;
 
 public abstract class MiniGame
 {
@@ -18,18 +15,22 @@ public abstract class MiniGame
     public MiniGameType Type { get; set; }
     public string Instructions { get; set; }
     public int RoundCount { get; set; }
-    public int CurrentRound { get; set; } = 1;
+    public int CurrentRound { get; set; }
     public TimeSpan RoundDuration { get; set; }
-    public DateTime InstructionStartTime { get; set; }
-    public TimeSpan InstructionsDuration { get; set; } = TimeSpan.FromSeconds(5); // TODO: Make this configurable
+    public DateTime? InstructionsStartTime { get; set; }
+    public TimeSpan InstructionsDuration { get; set; }
     
-    protected MiniGame(string name, MiniGameType type, string instructions, int roundCount, TimeSpan roundDuration)
+    public DateTime? InstructionsEndTime => InstructionsStartTime?.Add(InstructionsDuration);
+    
+    protected MiniGame(string name, MiniGameType type, string instructions, TimeSpan instructionsDuration, int roundCount, TimeSpan roundDuration)
     {
         Name = name;
         Type = type;
         Instructions = instructions;
         RoundCount = roundCount;
         RoundDuration = roundDuration;
+        InstructionsDuration = instructionsDuration;
+        CurrentRound = 0;
     }
     
     protected MiniGame()

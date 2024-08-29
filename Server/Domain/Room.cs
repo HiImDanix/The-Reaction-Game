@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 using Domain.Constants;
 
@@ -18,7 +19,9 @@ public class Room
     [Required]
     public string HostId { get; set; }
     public List<Game> PastGames { get; set; } = new();
-    public Game Game { get; set; } = new();
+    [ForeignKey(nameof(CurrentGameId))]
+    public Game CurrentGame { get; set; }
+    public string CurrentGameId { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
 
@@ -27,6 +30,7 @@ public class Room
         Code = GenerateRoomCode();
         HostId = host.Id;
         Players.Add(host);
+        CurrentGame = new Game();
     }
     
     // EF constructor

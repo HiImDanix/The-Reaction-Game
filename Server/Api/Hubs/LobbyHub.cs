@@ -13,7 +13,9 @@ public class LobbyHub: BaseHub, ILobbyHub
     
     private enum MessageType
     {
-        PlayerJoined
+        PlayerJoined,
+        GameStatusChanged,
+        CurrentGameUpdated
     }
 
     public LobbyHub(ILogger<LobbyHub> logger, IAuthService authService, IHubContext<LobbyHub> context) : base(logger, authService, context)
@@ -25,17 +27,9 @@ public class LobbyHub: BaseHub, ILobbyHub
     {
         await SendToRoom(roomId, MessageType.PlayerJoined.ToString(), msg);
     }
-
-    public Task NotifyMiniGameStartedShowInstructions(string roomId, string miniGameName, string miniGameInstructions,
-        TimeSpan miniGameInstructionsDuration)
+    
+    public Task NotifyCurrentGameUpdated(string roomId, GameResp currentGame)
     {
-        Console.WriteLine("Mini game started: show instructions");
-        return Task.CompletedTask;
-    }
-
-    public Task NotifyGameStatusChanged(string roomId, Game.GameStatus inProgress)
-    {
-        Console.WriteLine("Game status changed");
-        return Task.CompletedTask;
+        return SendToRoom(roomId, MessageType.CurrentGameUpdated.ToString(), currentGame);
     }
 }

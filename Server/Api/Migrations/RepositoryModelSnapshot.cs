@@ -30,13 +30,13 @@ namespace ReaktlyC.Migrations
                     b.Property<string>("CurrentMiniGameId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<TimeSpan>("PreparationTime")
+                    b.Property<TimeSpan>("PreparationDuration")
                         .HasColumnType("time");
 
                     b.Property<string>("RoomId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("StartTime")
+                    b.Property<DateTime?>("StartClickedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
@@ -49,55 +49,6 @@ namespace ReaktlyC.Migrations
                     b.HasIndex("RoomId");
 
                     b.ToTable("Games");
-                });
-
-            modelBuilder.Entity("Domain.MiniGame", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("CurrentRound")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("GameId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("InstructionStartTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Instructions")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<TimeSpan>("InstructionsDuration")
-                        .HasColumnType("time");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("RoundCount")
-                        .HasColumnType("int");
-
-                    b.Property<TimeSpan>("RoundDuration")
-                        .HasColumnType("time");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GameId");
-
-                    b.ToTable("MiniGames");
-
-                    b.HasDiscriminator<string>("Discriminator").HasValue("MiniGame");
-
-                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("Domain.MiniGames.ColorTapRound", b =>
@@ -142,6 +93,55 @@ namespace ReaktlyC.Migrations
                     b.HasIndex("ColorTapRoundId");
 
                     b.ToTable("ColorTapWordPairDisplay");
+                });
+
+            modelBuilder.Entity("Domain.MiniGames.MiniGame", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("CurrentRound")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("GameId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Instructions")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<TimeSpan>("InstructionsDuration")
+                        .HasColumnType("time");
+
+                    b.Property<DateTime?>("InstructionsStartTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RoundCount")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan>("RoundDuration")
+                        .HasColumnType("time");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GameId");
+
+                    b.ToTable("MiniGames");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("MiniGame");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("Domain.Player", b =>
@@ -201,7 +201,7 @@ namespace ReaktlyC.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("GameId")
+                    b.Property<string>("CurrentGameId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
@@ -211,21 +211,21 @@ namespace ReaktlyC.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GameId");
+                    b.HasIndex("CurrentGameId");
 
                     b.ToTable("Rooms");
                 });
 
             modelBuilder.Entity("Domain.MiniGames.ColorTapGame", b =>
                 {
-                    b.HasBaseType("Domain.MiniGame");
+                    b.HasBaseType("Domain.MiniGames.MiniGame");
 
                     b.HasDiscriminator().HasValue("ColorTapGame");
                 });
 
             modelBuilder.Entity("Domain.Game", b =>
                 {
-                    b.HasOne("Domain.MiniGame", "CurrentMiniGame")
+                    b.HasOne("Domain.MiniGames.MiniGame", "CurrentMiniGame")
                         .WithMany()
                         .HasForeignKey("CurrentMiniGameId");
 
@@ -234,13 +234,6 @@ namespace ReaktlyC.Migrations
                         .HasForeignKey("RoomId");
 
                     b.Navigation("CurrentMiniGame");
-                });
-
-            modelBuilder.Entity("Domain.MiniGame", b =>
-                {
-                    b.HasOne("Domain.Game", null)
-                        .WithMany("MiniGames")
-                        .HasForeignKey("GameId");
                 });
 
             modelBuilder.Entity("Domain.MiniGames.ColorTapRound", b =>
@@ -257,6 +250,13 @@ namespace ReaktlyC.Migrations
                         .HasForeignKey("ColorTapRoundId");
                 });
 
+            modelBuilder.Entity("Domain.MiniGames.MiniGame", b =>
+                {
+                    b.HasOne("Domain.Game", null)
+                        .WithMany("MiniGames")
+                        .HasForeignKey("GameId");
+                });
+
             modelBuilder.Entity("Domain.Player", b =>
                 {
                     b.HasOne("Domain.Room", null)
@@ -267,7 +267,7 @@ namespace ReaktlyC.Migrations
             modelBuilder.Entity("Domain.PlayerScore", b =>
                 {
                     b.HasOne("Domain.Game", "Game")
-                        .WithMany("PlayerScores")
+                        .WithMany("Scoreboard")
                         .HasForeignKey("GameId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -285,20 +285,20 @@ namespace ReaktlyC.Migrations
 
             modelBuilder.Entity("Domain.Room", b =>
                 {
-                    b.HasOne("Domain.Game", "Game")
+                    b.HasOne("Domain.Game", "CurrentGame")
                         .WithMany()
-                        .HasForeignKey("GameId")
+                        .HasForeignKey("CurrentGameId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Game");
+                    b.Navigation("CurrentGame");
                 });
 
             modelBuilder.Entity("Domain.Game", b =>
                 {
                     b.Navigation("MiniGames");
 
-                    b.Navigation("PlayerScores");
+                    b.Navigation("Scoreboard");
                 });
 
             modelBuilder.Entity("Domain.MiniGames.ColorTapRound", b =>

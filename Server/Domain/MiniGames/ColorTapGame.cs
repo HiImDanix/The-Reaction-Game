@@ -13,6 +13,7 @@ public class ColorTapGame : MiniGame
         ColorTapConstants.Name,
         MiniGameType.ColorTap,
         ColorTapConstants.Instructions,
+        ColorTapConstants.InstructionsDuration,
         rounds,
         roundDuration
         )

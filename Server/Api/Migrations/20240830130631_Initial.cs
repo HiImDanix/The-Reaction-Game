@@ -51,8 +51,8 @@ namespace ReaktlyC.Migrations
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CurrentMiniGameId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    StartTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    PreparationTime = table.Column<TimeSpan>(type: "time", nullable: false),
+                    StartClickedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    PreparationDuration = table.Column<TimeSpan>(type: "time", nullable: false),
                     RoomId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
@@ -71,7 +71,7 @@ namespace ReaktlyC.Migrations
                     RoundCount = table.Column<int>(type: "int", nullable: false),
                     CurrentRound = table.Column<int>(type: "int", nullable: false),
                     RoundDuration = table.Column<TimeSpan>(type: "time", nullable: false),
-                    InstructionStartTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    InstructionsStartTime = table.Column<DateTime>(type: "datetime2", nullable: true),
                     InstructionsDuration = table.Column<TimeSpan>(type: "time", nullable: false),
                     Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     GameId = table.Column<string>(type: "nvarchar(450)", nullable: true)
@@ -93,15 +93,15 @@ namespace ReaktlyC.Migrations
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Code = table.Column<string>(type: "nvarchar(6)", maxLength: 6, nullable: false),
                     HostId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    GameId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CurrentGameId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Rooms", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Rooms_Games_GameId",
-                        column: x => x.GameId,
+                        name: "FK_Rooms_Games_CurrentGameId",
+                        column: x => x.CurrentGameId,
                         principalTable: "Games",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -192,9 +192,9 @@ namespace ReaktlyC.Migrations
                 column: "PlayerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Rooms_GameId",
+                name: "IX_Rooms_CurrentGameId",
                 table: "Rooms",
-                column: "GameId");
+                column: "CurrentGameId");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_ColorTapRound_MiniGames_ColorTapGameId",

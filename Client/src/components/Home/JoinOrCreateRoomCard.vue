@@ -1,16 +1,16 @@
 <template>
-    <div class="space-y-6 max-w-3xl">
+    <div class="space-y-6 max-w-3xl ">
       <h1 class="text-5xl font-bold text-primary font-mono">
-        Challenge Your Friends To A Reaction Battle!
+        The Reaction Game
       </h1>
-      <p class="text-gray-200 text-lg font-mono font-">
+      <p class="text-gray-200 text-lg">
         Perfect for bar nights, breaking the ice, or settling who does the dishes.
       </p>
       <div class="space-y-3">
         <button class="btn btn-secondary w-full max-w-xs" @click="createGame">
           New Room
         </button>
-        <p class="text-gray-200 text-lg font-mono">
+        <p class="text-gray-200 text-lg">
           Been invited?
         </p>
         <form @submit.prevent="joinGame" class="flex justify-center">

@@ -8,6 +8,5 @@ namespace Application;
 public interface ILobbyHub
 {
     Task NotifyPlayerJoined(string roomId, PlayerJoinedMessage dto);
-    Task NotifyMiniGameStartedShowInstructions(string roomId, string miniGameName, string miniGameInstructions, TimeSpan miniGameInstructionsDuration);
-    Task NotifyGameStatusChanged(string roomId, Game.GameStatus inProgress);
+    Task NotifyCurrentGameUpdated(string roomId, GameResp currentGame);
 }

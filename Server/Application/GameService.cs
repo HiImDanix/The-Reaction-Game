@@ -1,11 +1,11 @@
 ﻿using Application.Errors;
+using Application.Gaming;
 using Domain;
 using Domain.MiniGames;
 using FluentResults;
 using Hangfire;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Application;
@@ -13,49 +13,43 @@ namespace Application;
 public class GameService: IGameService
 {
     private readonly Repository _context;
-    private readonly IServiceProvider _serviceProvider;
-    
-    public GameService(Repository context, IServiceProvider serviceProvider)
+    private readonly ILogger<GameService> _logger;
+
+    public GameService(Repository context, ILogger<GameService> logger)
     {
         _context = context;
-        _serviceProvider = serviceProvider;
+        _logger = logger;
     }
     
     public async Task<Result> StartGame(string roomId)
     {
         var room = await _context.Rooms
             .Include(r => r.Players)
-            .Include(r => r.Game).ThenInclude(game => game.MiniGames)
+            .Include(r => r.CurrentGame).ThenInclude(game => game.MiniGames)
             .FirstOrDefaultAsync(r => r.Id == roomId);
         
         if (room == null)
         {
+            _logger.LogError("Room with id: {RoomId} was not found", roomId);
             return Result.Fail(new NotFoundError($"Room with id {roomId} was not found"));
         }
-        // if (room.Game.Status != Game.GameStatus.NotStarted)
+        // if (room.CurrentGame.Status != Game.GameStatus.Lobby)
         // {
-        //     return Result.Fail(new BusinessValidationError("Something went wrong. Game is not in 'not started' state"));
+        //     _logger.LogError("CurrentGame has already started");
+        //     return Result.Fail(new BusinessValidationError("CurrentGame has already started"));
         // }
-        // Inject a mini game for testing
-        var miniGame = new ColorTapGame(2, TimeSpan.FromSeconds(5));
-        room.Game.MiniGames.Add(miniGame);
-        _context.Entry(room.Game).State = EntityState.Modified;
-        if (room.Game.MiniGames.Count < 1)
-        {
-            return Result.Fail(new BusinessValidationError("No mini games have been chosen"));
-        }
+
+        // Add ColorTap mini game. Later, the host will be able to choose the mini game
+        _logger.LogInformation("Adding ColorTap mini game to the game");
+        var colorTapMiniGame = MiniGameFactory.CreateMiniGame(
+            MiniGame.MiniGameType.ColorTap,
+            2, 
+            TimeSpan.FromSeconds(10));
+        room.CurrentGame.MiniGames.Add(colorTapMiniGame);
         await _context.SaveChangesAsync();
         
-        // Re retrieve room for debug
-        var room2 = await _context.Rooms
-            .Include(r => r.Players)
-            .Include(r => r.Game)
-            .FirstOrDefaultAsync(r => r.Id == roomId);
-        
-        var lobbyHub = _serviceProvider.GetRequiredService<ILobbyHub>();
-        var logger = _serviceProvider.GetRequiredService<ILogger<GameEngine>>();
-        
-         var jobId = BackgroundJob.Enqueue<GameEngine>(engine => engine.StartGame(room.Id));
+        _logger.LogInformation("CurrentGame engine started for room: {RoomId} in the background", roomId);
+        BackgroundJob.Enqueue<GameEngine>(engine => engine.StartGame(room.Id));
         
         return Result.Ok();
     }

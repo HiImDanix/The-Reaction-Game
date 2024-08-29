@@ -9,7 +9,9 @@ public class MappingProfile: Profile
 {
     public MappingProfile()
     {
-        CreateMap<Room, RoomResp>();
+        CreateMap<Room, RoomResp>()
+            .ForMember(dto => dto.Host,
+                opt => opt.MapFrom(room => room.Players.Find(player => player.Id == room.HostId)));
         CreateMap<(Room, Player, string), RoomCreatedPersonalResp>()
             .ForMember(dto => dto.Room, opt => opt.MapFrom(tuple => tuple.Item1))
             .ForMember(dto => dto.You, opt => opt.MapFrom(tuple => tuple.Item2))

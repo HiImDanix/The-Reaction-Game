@@ -60,7 +60,6 @@ public class RoomControllerIntegrationTests : IClassFixture<WebApplicationFactor
         var room = roomCreatedResponse.Room;
         room.Id.Should().NotBeEmpty();
         room.Code.Should().NotBeEmpty();
-        room.Status.Should().Be(RoomResp.RoomStatus.Lobby);
         room.Players.Should().ContainSingle()
             .Which.Should().Match<PlayerResp>(
                 p => p.Id.Length != 0 && 

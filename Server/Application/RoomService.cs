@@ -51,14 +51,19 @@ public class RoomService : IRoomService
     
     private async Task<Room?> GetRoomEntityByCodeAsync(string code)
     {
-        var room = await _context.Rooms.Include(r => r.Players)
+        var room = await _context.Rooms
+            .Include(r => r.Players)
+            .Include(r => r.CurrentGame)
             .FirstOrDefaultAsync(r => r.Code == code);
         return room;
     }
     
     public async Task<Result<RoomResp>> GetRoomById(string roomId)
     {
-        var room = await _context.Rooms.Include(r => r.Players).FirstOrDefaultAsync(r => r.Id == roomId);
+        var room = await _context.Rooms
+            .Include(r => r.Players)
+            .Include(r => r.CurrentGame)
+            .FirstOrDefaultAsync(r => r.Id == roomId);
         if (room == null)
         {
             return Result.Fail(new NotFoundError($"Room with id {roomId} was not found"));
@@ -75,7 +80,7 @@ public class RoomService : IRoomService
         {
             return Result.Fail(new NotFoundError($"Room with code {code} was not found"));
         } 
-        return Result.Ok(room.Game.Status == Game.GameStatus.NotStarted);
+        return Result.Ok(room.CurrentGame.Status == Game.GameStatus.Lobby);
     }
 
     public async Task<Result<RoomJoinedPersonalResp>> JoinRoomAsync(string code, string playerName)
@@ -89,7 +94,7 @@ public class RoomService : IRoomService
                 return Result.Fail(new NotFoundError("Room with the specified code was not found"));
             }
             
-            if (room.Game.Status != Game.GameStatus.NotStarted)
+            if (room.CurrentGame.Status != Game.GameStatus.Lobby)
             {
                 return Result.Fail(new BusinessValidationError("The room is already in-game. Cannot join"));
             }

@@ -13,28 +13,36 @@ export interface RoomJoined {
 export interface Room {
     id: string;
     code: string;
-    status: RoomStatus;
     players: Player[];
     host: Player;
-    game: Game;
-    currentGame: Game;
+    currentGame: Game | null;
+    pastGames: Game[];
     createdAt: string;
 }
 
 export interface Game {
     id: string;
+    status: GameStatus;
+    preparationStartTime: Date;
+    preparationEndTime: Date;
+}
+
+export function parseGameDates(game: Game): Game {
+    game.preparationStartTime = new Date(game.preparationStartTime);
+    game.preparationEndTime = new Date(game.preparationEndTime);
+    return game;
+}
+
+export enum GameStatus {
+    Lobby,
+    Starting,
+    InProgress,
+    Finished,
 }
 
 export interface Player {
     id: string;
     name: string;
-}
-
-export enum RoomStatus {
-    Lobby,
-    Starting,
-    InProgress,
-    Finished,
 }
 
 export interface PlayerJoinedMsg {

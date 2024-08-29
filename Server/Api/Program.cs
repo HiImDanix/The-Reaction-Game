@@ -1,5 +1,6 @@
 using System.Text;
 using Application;
+using Application.Gaming;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Hangfire;
@@ -71,6 +72,9 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     
     // Hubs
     services.AddScoped<ILobbyHub, LobbyHub>();
+    
+    // Game engines
+    services.AddScoped<IColorTapEngine, ColorTapEngine>();
     
 
     // Add any additional service configurations here

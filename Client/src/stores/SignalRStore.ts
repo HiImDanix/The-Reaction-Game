@@ -76,18 +76,24 @@ export const useSignalRStore = defineStore('signalR', () => {
     }
 
     async function disconnect(): Promise<void> {
-        if (connectionState.value === ConnectionState.Connected) {
-            await connection.value.stop();
-            connection.value = null;
-            connectionState.value = ConnectionState.Disconnected;
+        if (connection.value
+            && connectionState.value === ConnectionState.Connected) {
+                await connection.value.stop();
+                connection.value = null;
+                connectionState.value = ConnectionState.Disconnected;
         }
     }
 
     function subscribe<T>(message: string, callback: (data: T) => void): void {
-        if (connectionState.value === ConnectionState.Connected && !subscriptions.value.some(sub => sub.message === message)) {
-            connection.value.on(message, callback);
-        }
         subscriptions.value.push({message, callback});
+
+        if (connectionState.value == ConnectionState.Connected
+            && connection.value
+) {
+            console.debug('Subscribing2 to message:', message);
+                connection.value.on(message, callback);
+        }
+
 
     }
 

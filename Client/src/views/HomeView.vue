@@ -43,6 +43,7 @@ import type {RoomCreated, RoomJoined} from "@/Models/RoomModels";
 import {useRoomStore} from "@/stores/RoomStore";
 import {useUserStore} from "@/stores/UserStore";
 import {Api} from "@/Api/Api";
+import {useSignalRStore} from "@/stores/SignalRStore";
 
 const roomCode = ref('');
 
@@ -57,14 +58,16 @@ const currentView = ref<View>(View.CallToAction);
 
 const roomStore = useRoomStore();
 const userStore = useUserStore();
+const signalRStore = useSignalRStore();
 
 onMounted(async () => {
   if (userStore.user) {
     try {
       const room = await Api.getRoom();
+      roomStore.setRoom(room);
       currentView.value = View.Lobby;
     } catch (e) {
-      console.error(e);
+      // Do nothing
     }
   }
 });
@@ -84,11 +87,13 @@ const onRoomCodeIsJoinable = (code: string) => {
   currentView.value = View.JoinGameChooseName;
 }
 
-const onGoBack = () => {
+const onGoBack = async () => {
   if (currentView.value === View.Lobby) {
     if (confirm('Are you sure you want to leave the room?')) {
       userStore.logout();
       roomStore.clearRoom();
+      await signalRStore.disconnect();
+      signalRStore.clearSubscriptions();
       currentView.value = View.CallToAction;
     }
 

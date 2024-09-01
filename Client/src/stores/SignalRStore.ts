@@ -84,7 +84,17 @@ export const useSignalRStore = defineStore('signalR', () => {
         }
     }
 
+    function clearSubscriptions(): void {
+        subscriptions.value.forEach(subscription => {
+            connection.value?.off(subscription.message, subscription.callback);
+        });
+        subscriptions.value = [];
+    }
+
     function subscribe<T>(message: string, callback: (data: T) => void): void {
+        if (subscriptions.value.find(sub => sub.message === message && sub.callback === callback)) {
+            return;
+        }
         subscriptions.value.push({message, callback});
 
         if (connectionState.value == ConnectionState.Connected
@@ -97,6 +107,6 @@ export const useSignalRStore = defineStore('signalR', () => {
 
     }
 
-    return {connection, connectionState, connect, disconnect, subscribe};
+    return {connection, connectionState, connect, disconnect, subscribe, clearSubscriptions};
 
 })

@@ -23,14 +23,8 @@ export interface Room {
 export interface Game {
     id: string;
     status: GameStatus;
-    preparationStartTime: Date;
-    preparationEndTime: Date;
-}
-
-export function parseGameDates(game: Game): Game {
-    game.preparationStartTime = new Date(game.preparationStartTime);
-    game.preparationEndTime = new Date(game.preparationEndTime);
-    return game;
+    preparationStartTime: string;
+    preparationEndTime: string;
 }
 
 export enum GameStatus {

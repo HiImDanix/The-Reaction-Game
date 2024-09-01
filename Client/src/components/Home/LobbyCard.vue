@@ -44,10 +44,12 @@ const isPrepareToStartPhase = computed(
 
 const countdownEndTime = ref<Date | null>(null);
 
-// watch ispreparing. if so, set time to curr + 3 sec
 watch(isPrepareToStartPhase, (isPreparing) => {
   if (isPreparing) {
-    countdownEndTime.value = room.value?.currentGame?.preparationEndTime ?? null; // TODO: research null, undefined "?" operator
+
+    countdownEndTime.value = room.value?.currentGame?.preparationEndTime
+        ? new Date(room.value.currentGame.preparationEndTime)
+        : null;// TODO: research null, undefined "?" operator
   } else {
     countdownEndTime.value = null;
   }

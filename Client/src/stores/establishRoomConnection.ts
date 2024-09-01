@@ -4,8 +4,6 @@ import { useSignalRStore } from "@/stores/SignalRStore";
 import type {Game, PlayerJoinedMsg, Room} from "@/Models/RoomModels";
 import {useUserStore} from "@/stores/UserStore";
 import {Api} from "@/Api/Api";
-import {GameStatus, parseGameDates} from "@/Models/RoomModels";
-
 export function establishRoomConnection() {
   const roomStore = useRoomStore();
   const signalRStore = useSignalRStore();
@@ -18,15 +16,9 @@ export function establishRoomConnection() {
     });
 
     signalRStore.subscribe('CurrentGameUpdated', (game: Game) => {
-        game = parseGameDates(game);
         console.debug('Current game updated', game);
         roomStore.updateCurrentGame(game);
     });
-
-    // signalRStore.subscribe('RoomUpdated', (updatedRoom: Room) => {
-    //   console.debug('Room updated', updatedRoom);
-    //   roomStore.setRoom(updatedRoom);
-    // });
   };
 
   onMounted(async () => {

@@ -15,7 +15,7 @@ export interface Room {
     code: string;
     players: Player[];
     host: Player;
-    currentGame: Game | null;
+    currentGame: Game;
     pastGames: Game[];
     createdAt: string;
 }
@@ -25,6 +25,15 @@ export interface Game {
     status: GameStatus;
     preparationStartTime: string;
     preparationEndTime: string;
+    currentMiniGame: MiniGame | null;
+}
+
+export interface MiniGame {
+    id: string;
+    name: string;
+    instructions: string;
+    instructionsStartTime: string;
+    instructionsEndTime: string;
 }
 
 export enum GameStatus {

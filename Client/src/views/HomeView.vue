@@ -34,11 +34,11 @@
 
 <script setup lang="ts">
 import JoinOrCreateRoomCard from '../components/Home/JoinOrCreateRoomCard.vue'
-import {onMounted, ref} from 'vue'
+import {onMounted, ref, watch} from 'vue'
 import BackgroundComponent from "@/components/Home/BackgroundComponent.vue";
 import CreateRoomChooseNameCard from "@/components/Home/CreateRoomChooseNameCard.vue";
 import JoinRoomChooseNameCard from "@/components/Home/JoinRoomChooseNameCard.vue";
-import LobbyCard from "@/components/Home/LobbyCard.vue";
+import LobbyCard from "@/components/Home/LobbyComponent.vue";
 import type {RoomCreated, RoomJoined} from "@/Models/RoomModels";
 import {useRoomStore} from "@/stores/RoomStore";
 import {useUserStore} from "@/stores/UserStore";
@@ -100,8 +100,24 @@ const onGoBack = async () => {
   } else {
     currentView.value = View.CallToAction;
   }
-
 }
+
+// // watch: if status is 3 and currentGame.currentMiniGame.instructionsStartTime and currentGame.currentMiniGame.instructionsEndTime is between now, then show instructions
+// watch(() => roomStore.room?.currentGame?.status, (status) => {
+//   if (status === GameStatus.InProgress) {
+//     const currentGame = roomStore.room?.currentGame;
+//     if (currentGame?.currentMiniGame?.instructionsStartTime && currentGame?.currentMiniGame.instructionsEndTime) {
+//       const instructionsStartTime = new Date(currentGame.currentMiniGame.instructionsStartTime);
+//       const instructionsEndTime = new Date(currentGame.currentMiniGame.instructionsEndTime);
+//       const now = new Date();
+//       if (now >= instructionsStartTime && now <= instructionsEndTime) {
+//         currentView.value = View.Instructions;
+//       }
+//     }
+//   } else if (status === GameStatus.Finished) {
+//     currentView.value = View.Lobby;
+//   }
+// });
 </script>
 
 <style scoped>

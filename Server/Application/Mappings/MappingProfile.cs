@@ -2,6 +2,7 @@
 using Domain;
 using Contracts.Output;
 using Contracts.Output.Hub;
+using Domain.MiniGames;
 
 namespace Application.Mappings;
 
@@ -24,5 +25,6 @@ public class MappingProfile: Profile
         CreateMap<Game, GameResp>();
         CreateMap<Player, PlayerJoinedMessage>()
             .ForMember(dto => dto.Player, opt => opt.MapFrom(player => player));
+        CreateMap<MiniGame, MiniGameResp>();
     }
 }

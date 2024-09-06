@@ -6,6 +6,7 @@ public record GameResp
     public GameStatus Status { get; set; }
     public DateTime PreparationStartTime { get; set; }
     public DateTime PreparationEndTime { get; set; }
+    public MiniGameResp CurrentMiniGame { get; set; }
     
     
     public enum GameStatus

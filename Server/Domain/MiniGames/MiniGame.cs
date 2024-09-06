@@ -19,7 +19,6 @@ public abstract class MiniGame
     public TimeSpan RoundDuration { get; set; }
     public DateTime? InstructionsStartTime { get; set; }
     public TimeSpan InstructionsDuration { get; set; }
-    
     public DateTime? InstructionsEndTime => InstructionsStartTime?.Add(InstructionsDuration);
     
     protected MiniGame(string name, MiniGameType type, string instructions, TimeSpan instructionsDuration, int roundCount, TimeSpan roundDuration)

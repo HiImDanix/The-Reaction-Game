@@ -66,6 +66,13 @@ public class GameEngine
 
             // Mini-game: gameplay
             await PlayMiniGame(room, miniGame);
+            
+            // Mini-game: show results
+            _logger.LogInformation("Mini game phase 3: show results");
+            room.CurrentGame.CurrentMiniGame = null;
+            
+            await _context.SaveChangesAsync();
+            await _lobbyHub.NotifyCurrentGameUpdated(room.Id, _mapper.Map<GameResp>(room.CurrentGame));
         }
         
         room.CurrentGame.Status = Game.GameStatus.FinalScoreboard;

@@ -2,6 +2,7 @@
 using Contracts.Output;
 using Contracts.Output.Hub;
 using Domain;
+using Domain.MiniGames;
 using Microsoft.AspNetCore.SignalR;
 
 namespace ReaktlyC.Hubs;
@@ -15,7 +16,8 @@ public class LobbyHub: BaseHub, ILobbyHub
     {
         PlayerJoined,
         GameStatusChanged,
-        CurrentGameUpdated
+        CurrentGameUpdated,
+        ColorTapRoundStarted
     }
 
     public LobbyHub(ILogger<LobbyHub> logger, IAuthService authService, IHubContext<LobbyHub> context) : base(logger, authService, context)
@@ -31,5 +33,10 @@ public class LobbyHub: BaseHub, ILobbyHub
     public Task NotifyCurrentGameUpdated(string roomId, GameResp currentGame)
     {
         return SendToRoom(roomId, MessageType.CurrentGameUpdated.ToString(), currentGame);
+    }
+
+    public Task NotifyColorTapRoundStarted(string roomId, ColorTapRound round)
+    {
+        return SendToRoom(roomId, MessageType.ColorTapRoundStarted.ToString(), round);
     }
 }

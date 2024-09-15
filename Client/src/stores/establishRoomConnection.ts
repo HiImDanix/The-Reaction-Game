@@ -19,6 +19,11 @@ export function establishRoomConnection() {
         console.debug('Current game updated', game);
         roomStore.updateCurrentGame(game);
     });
+
+    signalRStore.subscribe('ColorTapRoundStarted', (round) => {
+        console.debug('Color tap round started');
+        console.debug(round);
+    });
   };
 
   onMounted(async () => {

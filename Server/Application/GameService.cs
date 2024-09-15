@@ -1,6 +1,7 @@
 ﻿using Application.Errors;
 using Application.Gaming;
 using Domain;
+using Domain.Constants;
 using Domain.MiniGames;
 using FluentResults;
 using Hangfire;
@@ -44,7 +45,7 @@ public class GameService: IGameService
         var colorTapMiniGame = MiniGameFactory.CreateMiniGame(
             MiniGame.MiniGameType.ColorTap,
             2, 
-            TimeSpan.FromSeconds(10));
+            ColorTapConstants.RoundDuration);
         room.CurrentGame.MiniGames.Add(colorTapMiniGame);
         await _context.SaveChangesAsync();
         

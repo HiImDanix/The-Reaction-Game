@@ -5,5 +5,5 @@ namespace Application.Gaming;
 
 public interface IColorTapEngine: IMiniGameEngine
 {
-    public Task PlayRound(Room room, MiniGame miniGame);
+    public Task PlayCurrentRound(Room room, MiniGame miniGame);
 }

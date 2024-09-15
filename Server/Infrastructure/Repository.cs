@@ -19,6 +19,9 @@ public class Repository: DbContext
     public DbSet<Game> Games { get; set; }
     public DbSet<MiniGame> MiniGames { get; set; }
     public DbSet<PlayerScore> PlayerScores { get; set; }
+    public DbSet<ColorTapGame> ColorTapGames { get; set; }
+    public DbSet<MiniGameRound> MiniGameRounds { get; set; }
+    public DbSet<ColorTapRound> ColorTapRounds { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -35,6 +38,20 @@ public class Repository: DbContext
         modelBuilder.Entity<ColorTapWordPairDisplay>()
             .Property(e => e.Word)
             .HasConversion(new ColorConverter());
+        
+        // TODO: Re-check this
+        modelBuilder.Entity<MiniGame>()
+            .HasDiscriminator<string>("MiniGameType")
+            .HasValue<ColorTapGame>(nameof(ColorTapGame));
+
+        // modelBuilder.Entity<MiniGame>()
+        //     .HasMany(mg => mg.Rounds)
+        //     .WithOne(r => r.MiniGame)
+        //     .HasForeignKey(r => r.MiniGameId);
+
+        modelBuilder.Entity<MiniGameRound>()
+            .HasDiscriminator<string>("RoundType")
+            .HasValue<ColorTapRound>(nameof(ColorTapRound));
     }
 }
 

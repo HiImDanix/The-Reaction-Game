@@ -51,24 +51,6 @@ namespace ReaktlyC.Migrations
                     b.ToTable("Games");
                 });
 
-            modelBuilder.Entity("Domain.MiniGames.ColorTapRound", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ColorTapGameId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ColorTapGameId");
-
-                    b.ToTable("ColorTapRound");
-                });
-
             modelBuilder.Entity("Domain.MiniGames.ColorTapWordPairDisplay", b =>
                 {
                     b.Property<string>("Id")
@@ -100,11 +82,13 @@ namespace ReaktlyC.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("CurrentRound")
+                    b.Property<string>("CurrentRoundId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("CurrentRoundNo")
                         .HasColumnType("int");
 
                     b.Property<string>("Discriminator")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("GameId")
@@ -120,26 +104,61 @@ namespace ReaktlyC.Migrations
                     b.Property<DateTime?>("InstructionsStartTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("MiniGameType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("RoundCount")
-                        .HasColumnType("int");
-
                     b.Property<TimeSpan>("RoundDuration")
                         .HasColumnType("time");
+
+                    b.Property<int>("TotalRoundsNo")
+                        .HasColumnType("int");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CurrentRoundId");
+
                     b.HasIndex("GameId");
 
                     b.ToTable("MiniGames");
 
-                    b.HasDiscriminator<string>("Discriminator").HasValue("MiniGame");
+                    b.HasDiscriminator<string>("MiniGameType").HasValue("MiniGame");
+
+                    b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("Domain.MiniGames.MiniGameRound", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("MiniGameId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("RoundType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MiniGameId");
+
+                    b.ToTable("MiniGameRounds");
+
+                    b.HasDiscriminator<string>("RoundType").HasValue("MiniGameRound");
 
                     b.UseTphMappingStrategy();
                 });
@@ -223,6 +242,13 @@ namespace ReaktlyC.Migrations
                     b.HasDiscriminator().HasValue("ColorTapGame");
                 });
 
+            modelBuilder.Entity("Domain.MiniGames.ColorTapRound", b =>
+                {
+                    b.HasBaseType("Domain.MiniGames.MiniGameRound");
+
+                    b.HasDiscriminator().HasValue("ColorTapRound");
+                });
+
             modelBuilder.Entity("Domain.Game", b =>
                 {
                     b.HasOne("Domain.MiniGames.MiniGame", "CurrentMiniGame")
@@ -236,13 +262,6 @@ namespace ReaktlyC.Migrations
                     b.Navigation("CurrentMiniGame");
                 });
 
-            modelBuilder.Entity("Domain.MiniGames.ColorTapRound", b =>
-                {
-                    b.HasOne("Domain.MiniGames.ColorTapGame", null)
-                        .WithMany("Rounds")
-                        .HasForeignKey("ColorTapGameId");
-                });
-
             modelBuilder.Entity("Domain.MiniGames.ColorTapWordPairDisplay", b =>
                 {
                     b.HasOne("Domain.MiniGames.ColorTapRound", null)
@@ -252,9 +271,22 @@ namespace ReaktlyC.Migrations
 
             modelBuilder.Entity("Domain.MiniGames.MiniGame", b =>
                 {
+                    b.HasOne("Domain.MiniGames.MiniGameRound", "CurrentRound")
+                        .WithMany()
+                        .HasForeignKey("CurrentRoundId");
+
                     b.HasOne("Domain.Game", null)
                         .WithMany("MiniGames")
                         .HasForeignKey("GameId");
+
+                    b.Navigation("CurrentRound");
+                });
+
+            modelBuilder.Entity("Domain.MiniGames.MiniGameRound", b =>
+                {
+                    b.HasOne("Domain.MiniGames.MiniGame", null)
+                        .WithMany("Rounds")
+                        .HasForeignKey("MiniGameId");
                 });
 
             modelBuilder.Entity("Domain.Player", b =>
@@ -301,9 +333,9 @@ namespace ReaktlyC.Migrations
                     b.Navigation("Scoreboard");
                 });
 
-            modelBuilder.Entity("Domain.MiniGames.ColorTapRound", b =>
+            modelBuilder.Entity("Domain.MiniGames.MiniGame", b =>
                 {
-                    b.Navigation("ColorWordPairs");
+                    b.Navigation("Rounds");
                 });
 
             modelBuilder.Entity("Domain.Room", b =>
@@ -313,9 +345,9 @@ namespace ReaktlyC.Migrations
                     b.Navigation("Players");
                 });
 
-            modelBuilder.Entity("Domain.MiniGames.ColorTapGame", b =>
+            modelBuilder.Entity("Domain.MiniGames.ColorTapRound", b =>
                 {
-                    b.Navigation("Rounds");
+                    b.Navigation("ColorWordPairs");
                 });
 #pragma warning restore 612, 618
         }

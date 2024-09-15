@@ -90,14 +90,30 @@ public class GameEngine
     {
         _logger.LogInformation("Mini game phase 2: gameplay");
 
-        miniGame.CurrentRound = miniGame.RoundCount; // TODO: For now, just play one round
-        switch (miniGame)
+        while (miniGame.CurrentRoundNo <= miniGame.TotalRoundsNo)
         {
-            case ColorTapGame :
-                await _serviceProvider.GetRequiredService<IColorTapEngine>().PlayRound(room, miniGame);
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
+            var round = miniGame.CreateRound(DateTime.UtcNow, DateTime.UtcNow.Add(miniGame.RoundDuration));
+            miniGame.Rounds.Add(round);
+            miniGame.CurrentRound = round;
+            round.StartTime = DateTime.UtcNow;
+            round.EndTime = round.StartTime.Add(miniGame.RoundDuration);
+            miniGame.CurrentRoundNo++;
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Playing round {MiniGameCurrentRound} of {MiniGameRoundCount}",
+                miniGame.CurrentRoundNo, miniGame.TotalRoundsNo);
+
+            switch (miniGame)
+            {
+                case ColorTapGame:
+                    await _serviceProvider.GetRequiredService<IColorTapEngine>().PlayCurrentRound(room, miniGame);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            
         }
+        
+        _logger.LogInformation("Mini game phase 2: gameplay finished");
     }
 }

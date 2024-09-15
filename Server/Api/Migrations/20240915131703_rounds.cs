@@ -6,24 +6,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ReaktlyC.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class rounds : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "ColorTapRound",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    StartTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ColorTapGameId = table.Column<string>(type: "nvarchar(450)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ColorTapRound", x => x.Id);
-                });
-
             migrationBuilder.CreateTable(
                 name: "ColorTapWordPairDisplay",
                 columns: table => new
@@ -37,11 +24,6 @@ namespace ReaktlyC.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ColorTapWordPairDisplay", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ColorTapWordPairDisplay_ColorTapRound_ColorTapRoundId",
-                        column: x => x.ColorTapRoundId,
-                        principalTable: "ColorTapRound",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -58,32 +40,6 @@ namespace ReaktlyC.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Games", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "MiniGames",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Type = table.Column<int>(type: "int", nullable: false),
-                    Instructions = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    RoundCount = table.Column<int>(type: "int", nullable: false),
-                    CurrentRound = table.Column<int>(type: "int", nullable: false),
-                    RoundDuration = table.Column<TimeSpan>(type: "time", nullable: false),
-                    InstructionsStartTime = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    InstructionsDuration = table.Column<TimeSpan>(type: "time", nullable: false),
-                    Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    GameId = table.Column<string>(type: "nvarchar(450)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MiniGames", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_MiniGames_Games_GameId",
-                        column: x => x.GameId,
-                        principalTable: "Games",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -151,10 +107,53 @@ namespace ReaktlyC.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateIndex(
-                name: "IX_ColorTapRound_ColorTapGameId",
-                table: "ColorTapRound",
-                column: "ColorTapGameId");
+            migrationBuilder.CreateTable(
+                name: "MiniGameRounds",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    StartTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    MiniGameId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    RoundType = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MiniGameRounds", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MiniGames",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Type = table.Column<int>(type: "int", nullable: false),
+                    Instructions = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TotalRoundsNo = table.Column<int>(type: "int", nullable: false),
+                    CurrentRoundNo = table.Column<int>(type: "int", nullable: false),
+                    CurrentRoundId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    RoundDuration = table.Column<TimeSpan>(type: "time", nullable: false),
+                    InstructionsStartTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    InstructionsDuration = table.Column<TimeSpan>(type: "time", nullable: false),
+                    Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    GameId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    MiniGameType = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MiniGames", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_MiniGames_Games_GameId",
+                        column: x => x.GameId,
+                        principalTable: "Games",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_MiniGames_MiniGameRounds_CurrentRoundId",
+                        column: x => x.CurrentRoundId,
+                        principalTable: "MiniGameRounds",
+                        principalColumn: "Id");
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_ColorTapWordPairDisplay_ColorTapRoundId",
@@ -170,6 +169,16 @@ namespace ReaktlyC.Migrations
                 name: "IX_Games_RoomId",
                 table: "Games",
                 column: "RoomId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MiniGameRounds_MiniGameId",
+                table: "MiniGameRounds",
+                column: "MiniGameId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MiniGames_CurrentRoundId",
+                table: "MiniGames",
+                column: "CurrentRoundId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_MiniGames_GameId",
@@ -197,10 +206,10 @@ namespace ReaktlyC.Migrations
                 column: "CurrentGameId");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_ColorTapRound_MiniGames_ColorTapGameId",
-                table: "ColorTapRound",
-                column: "ColorTapGameId",
-                principalTable: "MiniGames",
+                name: "FK_ColorTapWordPairDisplay_MiniGameRounds_ColorTapRoundId",
+                table: "ColorTapWordPairDisplay",
+                column: "ColorTapRoundId",
+                principalTable: "MiniGameRounds",
                 principalColumn: "Id");
 
             migrationBuilder.AddForeignKey(
@@ -216,11 +225,22 @@ namespace ReaktlyC.Migrations
                 column: "RoomId",
                 principalTable: "Rooms",
                 principalColumn: "Id");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_MiniGameRounds_MiniGames_MiniGameId",
+                table: "MiniGameRounds",
+                column: "MiniGameId",
+                principalTable: "MiniGames",
+                principalColumn: "Id");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_MiniGames_MiniGameRounds_CurrentRoundId",
+                table: "MiniGames");
+
             migrationBuilder.DropForeignKey(
                 name: "FK_Games_MiniGames_CurrentMiniGameId",
                 table: "Games");
@@ -236,10 +256,10 @@ namespace ReaktlyC.Migrations
                 name: "PlayerScores");
 
             migrationBuilder.DropTable(
-                name: "ColorTapRound");
+                name: "Players");
 
             migrationBuilder.DropTable(
-                name: "Players");
+                name: "MiniGameRounds");
 
             migrationBuilder.DropTable(
                 name: "MiniGames");

@@ -6,9 +6,6 @@ namespace Domain.MiniGames;
 
 public class ColorTapGame : MiniGame
 {
-    public static readonly TimeSpan TimeBetweenColorChange = TimeSpan.FromSeconds(1.5);
-    public List<ColorTapRound> Rounds { get; set; } = new();
-    
     public ColorTapGame(int rounds, TimeSpan roundDuration) : base(
         ColorTapConstants.Name,
         MiniGameType.ColorTap,
@@ -23,5 +20,9 @@ public class ColorTapGame : MiniGame
     protected ColorTapGame()
     {
     }
-    
+
+    public override MiniGameRound CreateRound(DateTime startTime, DateTime endTime)
+    {
+        return new ColorTapRound(startTime, endTime);
+    }
 }

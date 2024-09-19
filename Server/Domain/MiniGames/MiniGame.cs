@@ -1,14 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Shared.Enums;
 
 namespace Domain.MiniGames;
 
 public abstract class MiniGame
 {
-    public enum MiniGameType
-    {
-        ColorTap,
-    }
-    
     [Key]
     public string Id { get; set; } = Guid.NewGuid().ToString();
     public string Name { get; set; }
@@ -22,6 +18,7 @@ public abstract class MiniGame
     public TimeSpan InstructionsDuration { get; set; }
     public DateTime? InstructionsEndTime => InstructionsStartTime?.Add(InstructionsDuration);
     public IList<MiniGameRound> Rounds { get; set; } = new List<MiniGameRound>();
+    
     public abstract MiniGameRound CreateRound(DateTime startTime, DateTime endTime);
     
     protected MiniGame(string name, MiniGameType type, string instructions, TimeSpan instructionsDuration, int totalRoundsNo, TimeSpan roundDuration)

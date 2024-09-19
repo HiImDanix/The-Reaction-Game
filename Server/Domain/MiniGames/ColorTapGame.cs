@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Drawing;
 using Domain.Constants;
+using Shared.Enums;
 
 namespace Domain.MiniGames;
 

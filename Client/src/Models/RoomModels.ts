@@ -34,6 +34,29 @@ export interface MiniGame {
     instructions: string;
     instructionsStartTime: string;
     instructionsEndTime: string;
+    type: MiniGameType;
+    currentRoundNo: number;
+    totalRoundsNo: number;
+    currentRound: MiniGameRound;
+}
+
+export enum MiniGameType {
+    ColorTap = 'ColorTap',
+}
+
+export interface MiniGameRound {
+    startTime: string;
+    endTime: string;
+}
+
+export interface ColorTapRound extends MiniGameRound {
+    colorWordPairs: ColorWordPair[];
+}
+
+export interface ColorWordPair {
+    color: string;
+    word: string;
+    displayTime: string;
 }
 
 export enum GameStatus {

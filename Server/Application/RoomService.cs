@@ -4,6 +4,7 @@ using Contracts.Output;
 using Contracts.Output.Hub;
 using Microsoft.EntityFrameworkCore;
 using Domain;
+using Domain.MiniGames;
 using FluentResults;
 using Infrastructure;
 
@@ -54,6 +55,7 @@ public class RoomService : IRoomService
         var room = await _context.Rooms
             .Include(r => r.Players)
             .Include(r => r.CurrentGame)
+            .ThenInclude(g => g.CurrentMiniGame)
             .FirstOrDefaultAsync(r => r.Code == code);
         return room;
     }
@@ -63,13 +65,27 @@ public class RoomService : IRoomService
         var room = await _context.Rooms
             .Include(r => r.Players)
             .Include(r => r.CurrentGame)
+            .ThenInclude(g => g.CurrentMiniGame)
+            .ThenInclude(mg => mg.CurrentRound)
             .FirstOrDefaultAsync(r => r.Id == roomId);
         if (room == null)
         {
             return Result.Fail(new NotFoundError($"Room with id {roomId} was not found"));
         }
         
+        // TODO: Find a better way
+        if (room.CurrentGame?.CurrentMiniGame?.CurrentRound is ColorTapRound colorTapRound)
+        {
+            await _context.Entry(colorTapRound)
+                .Collection(r => r.ColorWordPairs)
+                .LoadAsync();
+        }
+        
         var dto = _mapper.Map<RoomResp>(room);
+        
+        // Debugging
+        Console.WriteLine($"CurrentMiniGame: {dto.CurrentGame?.CurrentMiniGame != null}");
+        Console.WriteLine($"CurrentRound: {dto.CurrentGame?.CurrentMiniGame?.CurrentRound != null}");
         return Result.Ok(dto);
     }
 

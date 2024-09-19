@@ -2,6 +2,7 @@
 using Application.Gaming;
 using AutoMapper;
 using Contracts.Output;
+using Contracts.Output.Hub;
 using Domain;
 using Domain.Constants;
 using Domain.MiniGames;
@@ -10,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Application;
 
-public class ColorTapEngine: IColorTapEngine
+public class ColorTapEngine: IColorTapEngine, IMiniGameEngine
 {
     private readonly Repository _context;
     private readonly ILobbyHub _lobbyHub;
@@ -27,21 +28,25 @@ public class ColorTapEngine: IColorTapEngine
 
     public async Task PlayCurrentRound(Room room, MiniGame miniGame)
     {
+        if (miniGame is not ColorTapGame)
+        {
+            throw new InvalidOperationException("Mini game is not of type ColorTapGame");
+        }
+        
         if (miniGame.CurrentRound is not ColorTapRound round)
         {
             throw new InvalidOperationException("Current round is not of type ColorTapRound");
         }
         
-        _logger.LogInformation("Color Tap game round {RoundNumber} started", miniGame.CurrentRoundNo);
-        _logger.LogInformation("Round duration: {RoundDuration}", miniGame.RoundDuration);
+        _logger.LogInformation("Color Tap game round {RoundNo} started (duration: {RoundDuration})",
+            miniGame.CurrentRoundNo, miniGame.RoundDuration);
         
         // Generate color-word pairs for the round
         round.ColorWordPairs = GenerateColorWordPairs(round.StartTime, round.EndTime);
+        _context.ColorTapRounds.Update(round);
+        await _context.SaveChangesAsync();
         
-        // Notify the players about the round
-        _logger.LogInformation("Notifying players about the round");
-        _logger.LogInformation("Round details: {@Round}", round);
-        await _lobbyHub.NotifyColorTapRoundStarted(room.Id, _mapper.Map<ColorTapRound>(round));
+        await _lobbyHub.NotifyCurrentMiniGameUpdated(room.Id, _mapper.Map<MiniGameResp>(miniGame));
         
         _logger.LogInformation("Waiting for the round to finish");
         await Task.Delay(ColorTapConstants.RoundDuration);

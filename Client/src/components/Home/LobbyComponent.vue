@@ -1,6 +1,6 @@
 <template>
   <div v-if="room != null">
-    <div :class="{'fade-out': isPrepareToStartPhase}" v-if="!isInstructionsPhase">
+    <div :class="{'fade-out': isPrepareToStartPhase}" v-if="!isInstructionsPhase && !isGameplayPhase">
       <LobbyDetailsCard
           :roomCode="room.code"
           :players="room.players"
@@ -17,9 +17,12 @@
 
     <InstructionsCard
         v-if="isInstructionsPhase"
-        :title="room.currentGame.currentMiniGame.name"
-        :description="room.currentGame.currentMiniGame.instructions"
+        :title="room.currentGame.currentMiniGame!.name"
+        :description="room.currentGame.currentMiniGame!.instructions"
     />
+
+    <GameComponent v-if="isGameplayPhase" />
+
 
   </div>
 
@@ -38,6 +41,7 @@ import {GameStatus} from "@/Models/RoomModels";
 import CountdownComponent from "@/components/Home/CountdownComponent.vue";
 import LobbyDetailsCard from "@/components/Home/LobbyDetailsCard.vue";
 import InstructionsCard from "@/components/Home/InstructionsCard.vue";
+import GameComponent from "@/components/Home/Gameplay/GameComponent.vue";
 
 establishRoomConnection();
 
@@ -68,6 +72,18 @@ const isInstructionsPhase = computed(
           room.value?.currentGame?.currentMiniGame.instructionsEndTime != null &&
           new Date() >= new Date(room.value.currentGame.currentMiniGame.instructionsStartTime) &&
           new Date() < new Date(room.value.currentGame.currentMiniGame.instructionsEndTime)
+    }
+)
+
+const isGameplayPhase = computed(
+    () => {
+      return room.value?.currentGame?.status === GameStatus.InProgress &&
+          room.value?.currentGame?.currentMiniGame != null &&
+          room.value?.currentGame?.currentMiniGame.currentRound != null &&
+          room.value?.currentGame?.currentMiniGame.currentRound.startTime != null &&
+          room.value?.currentGame?.currentMiniGame.currentRound.endTime != null &&
+          new Date() >= new Date(room.value.currentGame.currentMiniGame.currentRound.startTime) &&
+          new Date() < new Date(room.value.currentGame.currentMiniGame.currentRound.endTime)
     }
 )
 

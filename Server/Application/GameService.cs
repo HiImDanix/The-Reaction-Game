@@ -8,6 +8,7 @@ using Hangfire;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Shared.Enums;
 
 namespace Application;
 
@@ -34,6 +35,8 @@ public class GameService: IGameService
             _logger.LogError("Room with id: {RoomId} was not found", roomId);
             return Result.Fail(new NotFoundError($"Room with id {roomId} was not found"));
         }
+        
+        // TODO: add back
         // if (room.CurrentGame.Status != Game.GameStatus.Lobby)
         // {
         //     _logger.LogError("CurrentGame has already started");
@@ -43,7 +46,7 @@ public class GameService: IGameService
         // Add ColorTap mini game. Later, the host will be able to choose the mini game
         _logger.LogInformation("Adding ColorTap mini game to the game");
         var colorTapMiniGame = MiniGameFactory.CreateMiniGame(
-            MiniGame.MiniGameType.ColorTap,
+            MiniGameType.ColorTap,
             2, 
             ColorTapConstants.RoundDuration);
         room.CurrentGame.MiniGames.Add(colorTapMiniGame);

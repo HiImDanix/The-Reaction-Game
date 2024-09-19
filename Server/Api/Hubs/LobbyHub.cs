@@ -15,9 +15,8 @@ public class LobbyHub: BaseHub, ILobbyHub
     private enum MessageType
     {
         PlayerJoined,
-        GameStatusChanged,
         CurrentGameUpdated,
-        ColorTapRoundStarted
+        CurrentMiniGameUpdated,
     }
 
     public LobbyHub(ILogger<LobbyHub> logger, IAuthService authService, IHubContext<LobbyHub> context) : base(logger, authService, context)
@@ -35,8 +34,8 @@ public class LobbyHub: BaseHub, ILobbyHub
         return SendToRoom(roomId, MessageType.CurrentGameUpdated.ToString(), currentGame);
     }
 
-    public Task NotifyColorTapRoundStarted(string roomId, ColorTapRound round)
+    public Task NotifyCurrentMiniGameUpdated(string roomId, MiniGameResp message)
     {
-        return SendToRoom(roomId, MessageType.ColorTapRoundStarted.ToString(), round);
+        return SendToRoom(roomId, MessageType.CurrentMiniGameUpdated.ToString(), message);
     }
 }

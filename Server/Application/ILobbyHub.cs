@@ -10,5 +10,5 @@ public interface ILobbyHub
 {
     Task NotifyPlayerJoined(string roomId, PlayerJoinedMessage dto);
     Task NotifyCurrentGameUpdated(string roomId, GameResp currentGame);
-    Task NotifyColorTapRoundStarted(string roomId, ColorTapRound round); // TODO: Change to DTO
+    Task NotifyCurrentMiniGameUpdated(string roomId, MiniGameResp miniGame);
 }

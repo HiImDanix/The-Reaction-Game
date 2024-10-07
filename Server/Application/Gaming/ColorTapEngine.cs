@@ -1,4 +1,8 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Threading.Tasks;
 using Application.Gaming;
 using AutoMapper;
 using Contracts.Output;
@@ -11,14 +15,17 @@ using Microsoft.Extensions.Logging;
 
 namespace Application;
 
-public class ColorTapEngine: IColorTapEngine, IMiniGameEngine
+public class ColorTapEngine : IColorTapEngine, IMiniGameEngine
 {
+    private const double IncorrectPairProbability = 0.50;
+    private const double CorrectPairProbability = 0.20;
+
     private readonly Repository _context;
     private readonly ILobbyHub _lobbyHub;
     private readonly ILogger<ColorTapEngine> _logger;
     private readonly IMapper _mapper;
 
-    public ColorTapEngine( Repository context, ILobbyHub lobbyHub, ILogger<ColorTapEngine> logger, IMapper mapper)
+    public ColorTapEngine(Repository context, ILobbyHub lobbyHub, ILogger<ColorTapEngine> logger, IMapper mapper)
     {
         _context = context;
         _lobbyHub = lobbyHub;
@@ -53,38 +60,30 @@ public class ColorTapEngine: IColorTapEngine, IMiniGameEngine
         _logger.LogInformation("Color Tap round finished");
     }
     
+    /// <summary>
+    /// Generates a list of color-word pairs for the Color Tap game.
+    /// </summary>
+    /// <param name="startTime">The start time of the round.</param>
+    /// <param name="endTime">The end time of the round.</param>
+    /// <returns>A list of ColorTapWordPairDisplay objects representing the generated pairs.</returns>
     private static List<ColorTapWordPairDisplay> GenerateColorWordPairs(DateTime startTime, DateTime endTime)
     {
-        var displayDuration = ColorTapConstants.WordDisplayDuration;
-        
-        var availableColors = new List<Color> { Color.Red, Color.Blue, Color.Green,
-            Color.Yellow, Color.Purple, Color.Orange };
+        var availableColors = new List<Color> { Color.Red, Color.Blue, Color.Green, Color.Yellow, Color.Purple, Color.Orange };
         var roundDuration = (endTime - startTime).TotalMilliseconds;
         var numberOfPairs = (int)Math.Ceiling(roundDuration / ColorTapConstants.WordDisplayDuration.TotalMilliseconds);
-        
-        
+
         var random = new Random();
         var pairs = new List<ColorTapWordPairDisplay>();
-        var correctPairs = 0;
+        Color? previousWord = null;
+        var wasLastPairIncorrect = false;
 
         for (var i = 0; i < numberOfPairs; i++)
         {
-            var randomColor = availableColors[random.Next(availableColors.Count)];
-            Color wordColor;
+            var (randomColor, wordColor) = GenerateColorWordPair(availableColors, previousWord, wasLastPairIncorrect, random);
 
-            if (random.NextDouble() <= 0.20)
-            {
-                wordColor = randomColor;
-                correctPairs++;
-            } 
-            else
-            {
-                var availableWords = availableColors.Where(c => c != randomColor).ToList();
-                wordColor = availableWords[random.Next(availableWords.Count)];
-            }
-            
-            var displayTime = startTime.AddMilliseconds(i * displayDuration.TotalMilliseconds);
-            
+            wasLastPairIncorrect = randomColor != wordColor;
+
+            var displayTime = startTime.AddMilliseconds(i * ColorTapConstants.WordDisplayDuration.TotalMilliseconds);
             pairs.Add(new ColorTapWordPairDisplay
             {
                 Color = randomColor,
@@ -92,16 +91,45 @@ public class ColorTapEngine: IColorTapEngine, IMiniGameEngine
                 DisplayTime = displayTime
             });
 
+            previousWord = wordColor;
         }
-        
-        if (correctPairs == 0)
-        {
-            var randomIndex = random.Next(pairs.Count);
-            pairs[randomIndex].Word = pairs[randomIndex].Color;
-        }
-        
+
+        EnsureAtLeastOneCorrectPair(pairs, random);
+
         return pairs;
     }
-    
-    
+
+    private static (Color randomColor, Color wordColor) GenerateColorWordPair(
+        List<Color> availableColors, 
+        Color? previousWord, 
+        bool wasLastPairIncorrect, 
+        Random random)
+    {
+        var randomColor = availableColors[random.Next(availableColors.Count)];
+        Color wordColor;
+
+        if (wasLastPairIncorrect && random.NextDouble() <= IncorrectPairProbability && previousWord.HasValue)
+        {
+            wordColor = previousWord.Value;
+        }
+        else if (random.NextDouble() <= CorrectPairProbability)
+        {
+            wordColor = randomColor;
+        }
+        else
+        {
+            var availableWords = availableColors.Where(c => c != randomColor).ToList();
+            wordColor = availableWords[random.Next(availableWords.Count)];
+        }
+
+        return (randomColor, wordColor);
+    }
+
+    private static void EnsureAtLeastOneCorrectPair(List<ColorTapWordPairDisplay> pairs, Random random)
+    {
+        if (pairs.Any(p => p.Color == p.Word)) return;
+        
+        var randomIndex = random.Next(pairs.Count);
+        pairs[randomIndex].Word = pairs[randomIndex].Color;
+    }
 }

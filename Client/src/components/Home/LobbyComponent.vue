@@ -21,7 +21,7 @@
         :description="room.currentGame.currentMiniGame!.instructions"
     />
 
-    <GameComponent v-if="isGameplayPhase" />
+    <GameComponent v-if="isGameplayPhase" :currentGame="room.currentGame" />
 
 
   </div>

@@ -54,9 +54,16 @@ export interface ColorTapRound extends MiniGameRound {
 }
 
 export interface ColorWordPair {
-    color: string;
-    word: string;
+    color: Color;
+    word: Color;
     displayTime: string;
+}
+
+export interface Color {
+    name: string;
+    r: number;
+    g: number;
+    b: number;
 }
 
 export enum GameStatus {

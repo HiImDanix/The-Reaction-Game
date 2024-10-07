@@ -1,5 +1,37 @@
-# ReaktlyC (temporary name)
+# The Reaction Game
+<b>The Reaction Game</b> is a dynamic party game platform designed to test your reflexes and quick thinking. Gather your friends, create a room, and dive into a series of fast-paced mini-games that will keep everyone on their toes!
 
-ReaktlyC is a reaction-based party game platform, reimagined in C# (https://github.com/HiImDanix/Reaktly). Compete with friends in fast-paced mini-games that test your reflexes and quick thinking!
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/f506cfcb-78ae-4bd4-81be-6799ecfc60f2" alt="The Reaction Game Logo" width="650"/>
+</p>
 
-Project start date: 26th of July, 2024
+
+
+
+## 🚀 Features
+
+- **Multiplayer**: Create rooms and invite friends
+- **Diverse Mini-Games**: Test reflexes and knowledge
+- **Real-time Action**: Fast-paced gameplay
+
+## 🛠 Tech Stack
+
+- Backend: C#, ASP.NET, SignalR, Entity Framework
+- Frontend: Vue.js, TypeScript, Tailwind CSS, Daisy UI
+
+## 📈 Project Status
+
+Currently in prototype stage. Active development ongoing.
+
+- **Started**: July 26, 2024
+- **Development**: Solo project
+
+## 🔗 Links
+
+- [Trello Board](https://trello.com/b/WFAAOLVO/reaktlyc)
+- [Product Requirements](https://dkanepe.notion.site/Product-requirements-d386f2729f7943e58dcc1cb2d9eecb96)
+- [Original Java Version](https://github.com/HiImDanix/Reaktly)
+
+---
+
+⭐ If you like The Reaction Game, give it a star!

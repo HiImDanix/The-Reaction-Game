@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center space-y-6 max-w-3xl">
+  <div class="flex flex-col items-center space-y-6 max-w-3xl mb-24">
     <h1 class="text-5xl text-primary font-mono font-bold">What shall we call you?</h1>
     <form class="flex flex-col space-y-2" @submit.prevent="submitName">
       <input type="text" v-model="name" class="input input-bordered" placeholder="Daniel" />

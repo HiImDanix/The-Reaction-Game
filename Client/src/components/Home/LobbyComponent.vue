@@ -1,5 +1,5 @@
 <template>
-  <div v-if="room != null">
+  <div v-if="room != null" class="mb-24">
     <div :class="{'fade-out': isPrepareToStartPhase}" v-if="!isInstructionsPhase && !isGameplayPhase">
       <LobbyDetailsCard
           :roomCode="room.code"
@@ -21,7 +21,7 @@
         :description="room.currentGame.currentMiniGame!.instructions"
     />
 
-    <GameComponent v-if="isGameplayPhase" :currentGame="room.currentGame" />
+    <GameComponent v-if="isGameplayPhase" :game="room.currentGame" />
 
 
   </div>
@@ -36,11 +36,12 @@ import {establishRoomConnection} from "@/stores/establishRoomConnection";
 import {useRoomStore} from "@/stores/RoomStore";
 import {storeToRefs} from "pinia";
 import {Api} from "@/Api/Api";
-import {computed, ref, watch} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import {GameStatus} from "@/Models/RoomModels";
 import CountdownComponent from "@/components/Home/CountdownComponent.vue";
 import LobbyDetailsCard from "@/components/Home/LobbyDetailsCard.vue";
 import InstructionsCard from "@/components/Home/InstructionsCard.vue";
+import ColorTapGame from "@/components/Home/Gameplay/ColorTapGame.vue";
 import GameComponent from "@/components/Home/Gameplay/GameComponent.vue";
 
 establishRoomConnection();
@@ -58,36 +59,46 @@ watch(isPrepareToStartPhase, (isPreparing) => {
   if (isPreparing) {
     prepareToStartEndTime.value = room.value?.currentGame?.preparationEndTime
         ? new Date(room.value.currentGame.preparationEndTime)
-        : null;// TODO: research null, undefined "?" operator
+        : null;
   } else {
     prepareToStartEndTime.value = null;
   }
 });
 
-const isInstructionsPhase = computed(
-    () => {
-      return room.value?.currentGame?.status === GameStatus.InProgress &&
-          room.value?.currentGame?.currentMiniGame != null &&
-          room.value?.currentGame?.currentMiniGame.instructionsStartTime != null &&
-          room.value?.currentGame?.currentMiniGame.instructionsEndTime != null &&
-          new Date() >= new Date(room.value.currentGame.currentMiniGame.instructionsStartTime) &&
-          new Date() < new Date(room.value.currentGame.currentMiniGame.instructionsEndTime)
-    }
-)
+const isInstructionsPhase = computed(() => {
+  const currentGame = room.value?.currentGame;
+  const currentMiniGame = currentGame?.currentMiniGame;
 
-const isGameplayPhase = computed(
-    () => {
-      return room.value?.currentGame?.status === GameStatus.InProgress &&
-          room.value?.currentGame?.currentMiniGame != null &&
-          room.value?.currentGame?.currentMiniGame.currentRound != null &&
-          room.value?.currentGame?.currentMiniGame.currentRound.startTime != null &&
-          room.value?.currentGame?.currentMiniGame.currentRound.endTime != null &&
-          new Date() >= new Date(room.value.currentGame.currentMiniGame.currentRound.startTime) &&
-          new Date() < new Date(room.value.currentGame.currentMiniGame.currentRound.endTime)
-    }
-)
+  if (!currentGame || !currentMiniGame) return false;
 
+  const now = new Date();
+  const instructionsStartTime = new Date(currentMiniGame.instructionsStartTime);
+  const instructionsEndTime = new Date(currentMiniGame.instructionsEndTime);
 
+  return (
+      currentGame.status === GameStatus.InProgress &&
+      instructionsStartTime && instructionsEndTime &&
+      now >= instructionsStartTime && now < instructionsEndTime
+  );
+});
+
+const isGameplayPhase = computed(() => {
+  const currentGame = room.value?.currentGame;
+  const currentMiniGame = currentGame?.currentMiniGame;
+  const currentRound = currentMiniGame?.currentRound;
+
+  if (!currentGame || !currentMiniGame || !currentRound) return false;
+
+  const now = new Date();
+  const roundStartTime = new Date(currentRound.startTime);
+  const roundEndTime = new Date(currentRound.endTime);
+
+  return (
+      currentGame.status === GameStatus.InProgress &&
+      roundStartTime && roundEndTime &&
+      now >= roundStartTime && now < roundEndTime
+  );
+});
 
 const startGame = () => {
   Api.postStartGame();

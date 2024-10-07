@@ -1,5 +1,5 @@
 <template>
-    <div class="space-y-6 max-w-3xl ">
+    <div class="space-y-6 max-w-3xl mb-24">
       <h1 class="text-5xl font-bold text-primary font-mono">
         The Reaction Game
       </h1>

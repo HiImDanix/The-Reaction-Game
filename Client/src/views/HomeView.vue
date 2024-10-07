@@ -8,7 +8,7 @@
         </button>
       </div>
     </transition>
-    <div class="flex-grow flex flex-col items-center justify-center relative z-10 text-center mb-24">
+    <div class="flex-grow flex flex-col items-center justify-center relative z-10 text-center">
       <Transition name="slide" >
         <CreateRoomChooseNameCard
             v-if="currentView === View.CreateGameChooseName"

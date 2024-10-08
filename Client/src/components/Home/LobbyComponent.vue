@@ -104,3 +104,23 @@ const startGame = () => {
   Api.postStartGame();
 }
 </script>
+
+<style scoped>
+.fade-out {
+  opacity: 0.3;
+  pointer-events: none;
+  transition: opacity 0.5s ease-in-out;
+}
+.countdown-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+}
+</style>

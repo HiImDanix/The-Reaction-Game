@@ -4,7 +4,6 @@
 
 <script setup lang="ts">
 import { useCountdown } from './useCountdown';
-import {computed} from "vue";
 
 const props = defineProps<{
   endTime: Date | null;

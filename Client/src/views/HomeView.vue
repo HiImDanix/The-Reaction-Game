@@ -33,12 +33,12 @@
 </template>
 
 <script setup lang="ts">
-import JoinOrCreateRoomCard from '../components/Home/JoinOrCreateRoomCard.vue'
+import JoinOrCreateRoomCard from '../components/Home/HomeCallToActionCard.vue'
 import {onMounted, ref, watch} from 'vue'
 import BackgroundComponent from "@/components/Home/BackgroundComponent.vue";
 import CreateRoomChooseNameCard from "@/components/Home/CreateRoomChooseNameCard.vue";
 import JoinRoomChooseNameCard from "@/components/Home/JoinRoomChooseNameCard.vue";
-import LobbyCard from "@/components/Home/LobbyComponent.vue";
+import LobbyCard from "@/components/Lobby/LobbyComponent.vue";
 import type {RoomCreated, RoomJoined} from "@/Models/RoomModels";
 import {useRoomStore} from "@/stores/RoomStore";
 import {useUserStore} from "@/stores/UserStore";

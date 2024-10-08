@@ -38,11 +38,11 @@ import {storeToRefs} from "pinia";
 import {Api} from "@/Api/Api";
 import {computed, onMounted, ref, watch} from "vue";
 import {GameStatus} from "@/Models/RoomModels";
-import CountdownComponent from "@/components/Home/CountdownComponent.vue";
-import LobbyDetailsCard from "@/components/Home/LobbyDetailsCard.vue";
-import InstructionsCard from "@/components/Home/InstructionsCard.vue";
-import ColorTapGame from "@/components/Home/Gameplay/ColorTapGame.vue";
-import GameComponent from "@/components/Home/Gameplay/GameComponent.vue";
+import CountdownComponent from "@/components/Lobby/CountdownComponent.vue";
+import LobbyDetailsCard from "@/components/Lobby/LobbyDetailsCard.vue";
+import InstructionsCard from "@/components/Lobby/GameInstructionsCard.vue";
+import ColorTapGame from "@/components/Lobby/Gameplay/ColorTapGame.vue";
+import GameComponent from "@/components/Lobby/Gameplay/GameComponent.vue";
 
 establishRoomConnection();
 

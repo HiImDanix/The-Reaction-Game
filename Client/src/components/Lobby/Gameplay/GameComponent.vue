@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import ColorTapGame from "@/components/Home/Gameplay/ColorTapGame.vue";
+import ColorTapGame from "@/components/Lobby/Gameplay/ColorTapGame.vue";
 import type {Game} from "@/Models/RoomModels";
 import {MiniGameType} from "@/Models/RoomModels";
 

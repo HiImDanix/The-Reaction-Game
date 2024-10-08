@@ -14,12 +14,12 @@ public abstract class MiniGame
     public int CurrentRoundNo { get; set; }
     public MiniGameRound? CurrentRound { get; set; }
     public TimeSpan RoundDuration { get; set; }
-    public DateTime? InstructionsStartTime { get; set; }
+    public DateTimeOffset? InstructionsStartTime { get; set; }
     public TimeSpan InstructionsDuration { get; set; }
-    public DateTime? InstructionsEndTime => InstructionsStartTime?.Add(InstructionsDuration);
+    public DateTimeOffset? InstructionsEndTime => InstructionsStartTime?.Add(InstructionsDuration);
     public IList<MiniGameRound> Rounds { get; set; } = new List<MiniGameRound>();
     
-    public abstract MiniGameRound CreateRound(DateTime startTime, DateTime endTime);
+    public abstract MiniGameRound CreateRound(DateTimeOffset startTime, DateTimeOffset endTime);
     
     protected MiniGame(string name, MiniGameType type, string instructions, TimeSpan instructionsDuration, int totalRoundsNo, TimeSpan roundDuration)
     {

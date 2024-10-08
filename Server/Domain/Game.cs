@@ -22,10 +22,10 @@ public class Game
     public MiniGame? CurrentMiniGame { get; set; }
     public ICollection<PlayerScore> Scoreboard { get; set; } = new List<PlayerScore>();
     public GameStatus Status { get; set; } = GameStatus.Lobby;
-    public DateTime? StartClickedAt { get; set; }
+    public DateTimeOffset? StartClickedAt { get; set; }
     [NotMapped]
-    public DateTime? PreparationStartTime => StartClickedAt;
+    public DateTimeOffset? PreparationStartTime => StartClickedAt;
     public TimeSpan PreparationDuration { get; set; } = GameConstants.PreparationTime;
     [NotMapped]
-    public DateTime? PreparationEndTime => StartClickedAt?.Add(PreparationDuration);
+    public DateTimeOffset? PreparationEndTime => StartClickedAt?.Add(PreparationDuration);
 }

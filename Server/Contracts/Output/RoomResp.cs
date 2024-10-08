@@ -8,5 +8,5 @@ public record RoomResp
     public PlayerResp Host { get; set; }
     public List<GameResp> PastGames { get; set; } = new();
     public GameResp CurrentGame { get; set; }
-    public DateTime CreatedAt { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
 }

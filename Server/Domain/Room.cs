@@ -22,7 +22,7 @@ public class Room
     [ForeignKey(nameof(CurrentGameId))]
     public Game CurrentGame { get; set; }
     public string CurrentGameId { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTimeOffset CreatedAt { get; set; } = DateTime.UtcNow;
     
 
     public Room(Player host)

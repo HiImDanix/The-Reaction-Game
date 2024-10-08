@@ -22,7 +22,7 @@ public class ColorTapGame : MiniGame
     {
     }
 
-    public override MiniGameRound CreateRound(DateTime startTime, DateTime endTime)
+    public override MiniGameRound CreateRound(DateTimeOffset startTime, DateTimeOffset endTime)
     {
         return new ColorTapRound(startTime, endTime);
     }

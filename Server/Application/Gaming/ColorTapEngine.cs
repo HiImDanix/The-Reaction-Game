@@ -66,7 +66,7 @@ public class ColorTapEngine : IColorTapEngine, IMiniGameEngine
     /// <param name="startTime">The start time of the round.</param>
     /// <param name="endTime">The end time of the round.</param>
     /// <returns>A list of ColorTapWordPairDisplay objects representing the generated pairs.</returns>
-    private static List<ColorTapWordPairDisplay> GenerateColorWordPairs(DateTime startTime, DateTime endTime)
+    private static List<ColorTapWordPairDisplay> GenerateColorWordPairs(DateTimeOffset startTime, DateTimeOffset endTime)
     {
         var availableColors = new List<Color> { Color.Red, Color.Blue, Color.Green, Color.Yellow, Color.Purple, Color.Orange };
         var roundDuration = (endTime - startTime).TotalMilliseconds;

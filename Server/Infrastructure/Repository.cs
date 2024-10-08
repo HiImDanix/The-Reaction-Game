@@ -61,19 +61,29 @@ public class ColorConverter : ValueConverter<Color, string>
         v => ColorToString(v),
         v => StringToColor(v))
     {}
-
+    
     private static string ColorToString(Color color)
     {
+        if (color.IsNamedColor || color.IsKnownColor)
+        {
+            return color.Name;
+        }
         return $"{color.R},{color.G},{color.B},{color.A}";
     }
-
+    
     private static Color StringToColor(string value)
     {
+        if (Color.FromName(value).IsKnownColor)
+        {
+            return Color.FromName(value);
+        }
+        
         var parts = value.Split(',');
         return Color.FromArgb(
-            int.Parse(parts[3]), 
-            int.Parse(parts[0]), 
-            int.Parse(parts[1]), 
-            int.Parse(parts[2]));
+            int.Parse(parts[3]),  // Alpha (A)
+            int.Parse(parts[0]),  // Red (R)
+            int.Parse(parts[1]),  // Green (G)
+            int.Parse(parts[2])   // Blue (B)
+        );
     }
 }

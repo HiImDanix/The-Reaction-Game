@@ -1,7 +1,9 @@
 ﻿using Application.Gaming;
 using AutoMapper;
 using Contracts.Output;
+using Contracts.Output.MiniGames;
 using Domain;
+using Domain.Constants;
 using Domain.MiniGames;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
@@ -17,14 +19,16 @@ public class GameEngine
     private readonly ILogger<GameEngine> _logger;
     private readonly IServiceProvider _serviceProvider;
     private readonly IMapper _mapper;
+    private readonly IScoringSystem _scoringSystem;
 
-    public GameEngine(Repository context, ILobbyHub lobbyHub, ILogger<GameEngine> logger, IServiceProvider serviceProvider, IMapper mapper)
+    public GameEngine(Repository context, ILobbyHub lobbyHub, ILogger<GameEngine> logger, IServiceProvider serviceProvider, IMapper mapper, IScoringSystem scoringSystem)
     {
         _context = context;
         _lobbyHub = lobbyHub;
         _logger = logger;
         _serviceProvider = serviceProvider;
         _mapper = mapper;
+        _scoringSystem = scoringSystem;
     }
 
     public async Task StartGame(string roomId)
@@ -92,6 +96,9 @@ public class GameEngine
 
         while (miniGame.CurrentRoundNo <= miniGame.TotalRoundsNo)
         {
+            _logger.LogInformation("Starting round {MiniGameCurrentRound} of {MiniGameRoundCount}",
+                miniGame.CurrentRoundNo, miniGame.TotalRoundsNo);
+            
             var round = miniGame.CreateRound(DateTime.UtcNow, DateTime.UtcNow.Add(miniGame.RoundDuration));
             miniGame.Rounds.Add(round);
             miniGame.CurrentRound = round;
@@ -103,14 +110,23 @@ public class GameEngine
             _logger.LogInformation("Playing round {MiniGameCurrentRound} of {MiniGameRoundCount}",
                 miniGame.CurrentRoundNo, miniGame.TotalRoundsNo);
 
-            switch (miniGame)
+            IMiniGameEngine engine = miniGame switch
             {
-                case ColorTapGame:
-                    await _serviceProvider.GetRequiredService<IColorTapEngine>().PlayCurrentRound(room, miniGame);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+                ColorTapGame => _serviceProvider.GetRequiredService<IColorTapEngine>(),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+            await engine.PlayCurrentRound(room, miniGame);
+            var playerMetrics = await engine.CalculatePlayerMetrics(room, miniGame.CurrentRound);
+            var roundResults = _scoringSystem.CalculateRoundScores(playerMetrics);
+            var sortedResults = roundResults.OrderByDescending(p => p.Score).ToList();
+            miniGame.CurrentRound.Scoreboard = sortedResults;
+            // Inform users about the round results
+            _logger.LogInformation("Round {MiniGameCurrentRound} finished. Displaying scoreboard", miniGame.CurrentRoundNo);
+            miniGame.CurrentRound.EndTime = DateTime.UtcNow;
+            await _lobbyHub.NotifyCurrentRoundUpdated(room.Id, _mapper.Map<MiniGameRoundResp>(miniGame.CurrentRound));
+            _logger.LogInformation("Waiting for {RoundEndScreenDuration}", ColorTapConstants.RoundEndScreenDuration);
+            await Task.Delay(ColorTapConstants.RoundEndScreenDuration);
+            
             
         }
         

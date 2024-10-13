@@ -32,5 +32,6 @@ public class MappingProfile: Profile
         CreateMap<ColorTapGame, ColorTapGameResp>();
         CreateMap<ColorTapRound, ColorTapRoundResp>();
         CreateMap<ColorTapWordPairDisplay, ColorTapWordPairDisplayResp>();
+        CreateMap<ScoreboardLine, ScoreboardLineResp>();
     }
 }

@@ -69,6 +69,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     services.AddScoped<IRoomService, RoomService>();
     services.AddScoped<IGameService, GameService>();
     services.AddScoped<IAuthService, AuthService>();
+    services.AddScoped<IScoringSystem, ScoringSystem>();
     
     // Hubs
     services.AddScoped<ILobbyHub, LobbyHub>();

@@ -40,6 +40,11 @@ export interface MiniGame {
     currentRound: MiniGameRound;
 }
 
+export interface ScoreboardLine {
+    player: Player;
+    score: number;
+}
+
 export enum MiniGameType {
     ColorTap = 'ColorTap',
 }
@@ -47,6 +52,7 @@ export enum MiniGameType {
 export interface MiniGameRound {
     startTime: string;
     endTime: string;
+    scoreboard?: ScoreboardLine[];
 }
 
 export interface ColorTapRound extends MiniGameRound {

@@ -1,6 +1,7 @@
 ﻿using Application;
 using Contracts.Output;
 using Contracts.Output.Hub;
+using Contracts.Output.MiniGames;
 using Domain;
 using Domain.MiniGames;
 using Microsoft.AspNetCore.SignalR;
@@ -17,6 +18,7 @@ public class LobbyHub: BaseHub, ILobbyHub
         PlayerJoined,
         CurrentGameUpdated,
         CurrentMiniGameUpdated,
+        CurrentRoundUpdated
     }
 
     public LobbyHub(ILogger<LobbyHub> logger, IAuthService authService, IHubContext<LobbyHub> context) : base(logger, authService, context)
@@ -37,5 +39,10 @@ public class LobbyHub: BaseHub, ILobbyHub
     public Task NotifyCurrentMiniGameUpdated(string roomId, MiniGameResp message)
     {
         return SendToRoom(roomId, MessageType.CurrentMiniGameUpdated.ToString(), message);
+    }
+
+    public Task NotifyCurrentRoundUpdated(string roomId, MiniGameRoundResp roundDto)
+    {
+        return SendToRoom(roomId, MessageType.CurrentRoundUpdated.ToString(), roundDto);
     }
 }

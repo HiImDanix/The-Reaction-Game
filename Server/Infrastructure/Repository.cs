@@ -22,6 +22,7 @@ public class Repository: DbContext
     public DbSet<ColorTapGame> ColorTapGames { get; set; }
     public DbSet<MiniGameRound> MiniGameRounds { get; set; }
     public DbSet<ColorTapRound> ColorTapRounds { get; set; }
+    public DbSet<ScoreboardLine> ScoreboardLines { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

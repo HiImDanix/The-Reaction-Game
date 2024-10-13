@@ -1,7 +1,7 @@
 import {ref} from 'vue'
 import type {Ref} from "vue";
 import { defineStore } from 'pinia'
-import type {Game, MiniGame, Player, Room} from "@/Models/RoomModels";
+import type {Game, MiniGame, MiniGameRound, Player, Room} from "@/Models/RoomModels";
 
 export const useRoomStore = defineStore('room', () => {
     const room: Ref<Room | null> = ref(null);
@@ -24,11 +24,17 @@ export const useRoomStore = defineStore('room', () => {
         room.value.currentGame.currentMiniGame = game;
     }
 
+    function updateCurrentRound(round: MiniGameRound): void {
+        if (!room.value) return;
+        if (!room.value.currentGame.currentMiniGame) return;
+        room.value.currentGame.currentMiniGame.currentRound = round;
+    }
+
     function addPlayer(player: Player): void {
         if (!room.value) return;
         if (room.value.players.some(p => p.id === player.id)) return;
         room.value.players.push(player);
     }
 
-    return {room, setRoom, clearRoom, addPlayer, updateCurrentGame, updateCurrentMiniGame}
+    return {room, setRoom, clearRoom, addPlayer, updateCurrentGame, updateCurrentMiniGame, updateCurrentRound};
 })

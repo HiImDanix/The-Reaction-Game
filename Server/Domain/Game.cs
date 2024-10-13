@@ -20,7 +20,7 @@ public class Game
     public string Id { get; private set; } = Guid.NewGuid().ToString();
     public ICollection<MiniGame> MiniGames { get; set; } = new List<MiniGame>();
     public MiniGame? CurrentMiniGame { get; set; }
-    public ICollection<PlayerScore> Scoreboard { get; set; } = new List<PlayerScore>();
+    // public ICollection<PlayerScore> Scoreboard { get; set; } = new List<PlayerScore>();
     public GameStatus Status { get; set; } = GameStatus.Lobby;
     public DateTimeOffset? StartClickedAt { get; set; }
     [NotMapped]

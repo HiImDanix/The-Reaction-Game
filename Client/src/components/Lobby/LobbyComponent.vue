@@ -1,6 +1,6 @@
 <template>
   <div v-if="room != null" class="mb-24">
-    <div :class="{'fade-out': isPrepareToStartPhase}" v-if="!isInstructionsPhase && !isGameplayPhase">
+    <div :class="{'fade-out': isPrepareToStartPhase}" v-if="!isInstructionsPhase && !isGameplayPhase && !isRoundScoreboardPhase">
       <LobbyDetailsCard
           :roomCode="room.code"
           :players="room.players"
@@ -23,6 +23,10 @@
 
     <GameComponent v-if="isGameplayPhase" :game="room.currentGame" />
 
+    <div v-if="isRoundScoreboardPhase">
+      <ScoreboardComponent :scoreboard="room.currentGame.currentMiniGame?.currentRound?.scoreboard" />
+    </div>
+
 
   </div>
 
@@ -41,8 +45,8 @@ import {GameStatus} from "@/Models/RoomModels";
 import CountdownComponent from "@/components/Lobby/CountdownComponent.vue";
 import LobbyDetailsCard from "@/components/Lobby/LobbyDetailsCard.vue";
 import InstructionsCard from "@/components/Lobby/GameInstructionsCard.vue";
-import ColorTapGame from "@/components/Lobby/Gameplay/ColorTapGame.vue";
 import GameComponent from "@/components/Lobby/Gameplay/GameComponent.vue";
+import ScoreboardComponent from "@/components/Lobby/Gameplay/ScoreboardComponent.vue";
 
 establishRoomConnection();
 
@@ -97,6 +101,23 @@ const isGameplayPhase = computed(() => {
       currentGame.status === GameStatus.InProgress &&
       roundStartTime && roundEndTime &&
       now >= roundStartTime && now < roundEndTime
+  );
+});
+
+const isRoundScoreboardPhase = computed(() => {
+  const currentGame = room.value?.currentGame;
+  const currentMiniGame = currentGame?.currentMiniGame;
+  const currentRound = currentMiniGame?.currentRound;
+
+  if (!currentGame || !currentMiniGame || !currentRound) return false;
+
+  const now = new Date();
+  const roundEndTime = new Date(currentRound.endTime);
+
+  return (
+      currentGame.status === GameStatus.InProgress &&
+      roundEndTime &&
+      now >= roundEndTime
   );
 });
 

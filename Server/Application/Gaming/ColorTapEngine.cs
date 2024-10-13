@@ -15,7 +15,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Application;
 
-public class ColorTapEngine : IColorTapEngine, IMiniGameEngine
+public class ColorTapEngine : IColorTapEngine
 {
     private const double IncorrectPairProbability = 0.50;
     private const double CorrectPairProbability = 0.20;
@@ -48,18 +48,39 @@ public class ColorTapEngine : IColorTapEngine, IMiniGameEngine
         _logger.LogInformation("Color Tap game round {RoundNo} started (duration: {RoundDuration})",
             miniGame.CurrentRoundNo, miniGame.RoundDuration);
         
-        // Generate color-word pairs for the round
+        // Generate data for the round, update the round and notify the clients
         round.ColorWordPairs = GenerateColorWordPairs(round.StartTime, round.EndTime);
         _context.ColorTapRounds.Update(round);
         await _context.SaveChangesAsync();
-        
         await _lobbyHub.NotifyCurrentMiniGameUpdated(room.Id, _mapper.Map<MiniGameResp>(miniGame));
         
         _logger.LogInformation("Waiting for the round to finish");
         await Task.Delay(ColorTapConstants.RoundDuration);
         _logger.LogInformation("Color Tap round finished");
     }
-    
+
+    public Task<IEnumerable<PlayerMetrics>> CalculatePlayerMetrics(Room room, MiniGameRound miniGameRound)
+    {
+        if (miniGameRound is not ColorTapRound round)
+        {
+            throw new InvalidOperationException("Mini game round is not of type ColorTapRound");
+        }
+        
+        var players = room.Players;
+        
+        // TODO: Implement the logic to calculate player metrics
+        var random = new Random();
+        return Task.FromResult(players.Select(p => new PlayerMetrics
+        {
+            Player = p,
+            Round = round,
+            Speed = random.NextDouble(),
+            Accuracy = random.NextDouble(),
+            ResponseOrder = random.Next(1, players.Count + 1),
+            IsCorrect = random.NextDouble() <= 0.5
+        }));
+    }
+
     /// <summary>
     /// Generates a list of color-word pairs for the Color Tap game.
     /// </summary>

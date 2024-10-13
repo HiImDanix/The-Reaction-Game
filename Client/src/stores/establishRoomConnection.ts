@@ -1,7 +1,7 @@
 import { onMounted, onUnmounted } from 'vue';
 import { useRoomStore } from "@/stores/RoomStore";
 import { useSignalRStore } from "@/stores/SignalRStore";
-import type {Game, MiniGame, PlayerJoinedMsg, Room} from "@/Models/RoomModels";
+import type {Game, MiniGame, MiniGameRound, PlayerJoinedMsg, Room} from "@/Models/RoomModels";
 import {useUserStore} from "@/stores/UserStore";
 import {Api} from "@/Api/Api";
 export function establishRoomConnection() {
@@ -23,6 +23,11 @@ export function establishRoomConnection() {
     signalRStore.subscribe('CurrentMiniGameUpdated', (miniGame: MiniGame) => {
         console.debug('Current mini-game updated', miniGame);
         roomStore.updateCurrentMiniGame(miniGame);
+    });
+
+    signalRStore.subscribe('CurrentRoundUpdated', (round: MiniGameRound) => {
+        console.debug('Current round updated', round);
+        roomStore.updateCurrentRound(round);
     });
   };
 

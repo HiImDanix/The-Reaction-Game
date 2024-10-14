@@ -43,16 +43,16 @@ public class GameService: IGameService
         }
 
         // Add ColorTap mini game. Later, the host will be able to choose the mini game
-        _logger.LogInformation("Adding ColorTap mini game to the game");
+        _logger.LogDebug("Adding ColorTap mini game to the game");
         var colorTapMiniGame = MiniGameFactory.CreateMiniGame(
             MiniGameType.ColorTap,
-            2, 
-            ColorTapConstants.RoundDuration);
+            ColorTapConstants.DefaultRoundsCount, 
+            ColorTapConstants.DefaultRoundDuration);
         room.CurrentGame.MiniGames.Add(colorTapMiniGame);
         await _context.SaveChangesAsync();
         
-        _logger.LogInformation("CurrentGame engine started for room: {RoomId} in the background", roomId);
-        BackgroundJob.Enqueue<GameEngine>(engine => engine.StartGame(room.Id));
+        _logger.LogDebug("CurrentGame engine started for room: {RoomId} in the background", roomId);
+        BackgroundJob.Enqueue<GameEngine>(engine => engine.PlayGameAsync(room.Id));
         
         return Result.Ok();
     }

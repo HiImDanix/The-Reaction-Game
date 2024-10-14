@@ -67,12 +67,14 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     
     services.Configure<ScoringConfig>(configuration.GetSection("ScoringConfig"));
     services.Configure<ColorTapConfig>(configuration.GetSection("ColorTapConfig"));
+    services.Configure<GameEngineConfig>(configuration.GetSection("GameEngineConfig"));
 
     // Application services
     services.AddScoped<IRoomService, RoomService>();
     services.AddScoped<IGameService, GameService>();
     services.AddScoped<IAuthService, AuthService>();
     services.AddScoped<IScoringSystem, ScoringSystem>();
+    services.AddScoped<IMiniGameEngineFactory, MiniGameEngineFactory>();
     
     // Hubs
     services.AddScoped<ILobbyHub, LobbyHub>();

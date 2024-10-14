@@ -2,6 +2,7 @@
 using Application.Gaming;
 using Domain;
 using Domain.Constants;
+using Domain.Errors;
 using Domain.MiniGames;
 using FluentResults;
 using Hangfire;
@@ -33,27 +34,28 @@ public class GameService: IGameService
         if (room == null)
         {
             _logger.LogError("Room with id: {RoomId} was not found", roomId);
-            return Result.Fail(new NotFoundError($"Room with id {roomId} was not found"));
+            return Result.Fail(new NotFoundError(ErrorCodes.RoomNotFound));
         }
         
-        if (room.CurrentGame.Status != Game.GameStatus.Lobby)
+        if (!CanStartGame(room.CurrentGame))
         {
-            _logger.LogError("CurrentGame has already started");
-            return Result.Fail(new BusinessValidationError("CurrentGame has already started"));
+            return Result.Fail(new BusinessValidationError(ErrorCodes.GameCannotBeStarted));
         }
 
-        // Add ColorTap mini game. Later, the host will be able to choose the mini game
-        _logger.LogDebug("Adding ColorTap mini game to the game");
+        await AddDefaultMiniGamesAsync(room);
+        BackgroundJob.Enqueue<GameEngine>(engine => engine.PlayGameAsync(room.Id));
+        return Result.Ok();
+    }
+    
+    private static bool CanStartGame(Game game) => game.Status == Game.GameStatus.Lobby;
+    
+    private async Task AddDefaultMiniGamesAsync(Room room)
+    {
         var colorTapMiniGame = MiniGameFactory.CreateMiniGame(
             MiniGameType.ColorTap,
             ColorTapConstants.DefaultRoundsCount, 
             ColorTapConstants.DefaultRoundDuration);
         room.CurrentGame.MiniGames.Add(colorTapMiniGame);
         await _context.SaveChangesAsync();
-        
-        _logger.LogDebug("CurrentGame engine started for room: {RoomId} in the background", roomId);
-        BackgroundJob.Enqueue<GameEngine>(engine => engine.PlayGameAsync(room.Id));
-        
-        return Result.Ok();
     }
 }

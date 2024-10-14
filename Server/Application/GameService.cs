@@ -36,12 +36,11 @@ public class GameService: IGameService
             return Result.Fail(new NotFoundError($"Room with id {roomId} was not found"));
         }
         
-        // TODO: add back
-        // if (room.CurrentGame.Status != Game.GameStatus.Lobby)
-        // {
-        //     _logger.LogError("CurrentGame has already started");
-        //     return Result.Fail(new BusinessValidationError("CurrentGame has already started"));
-        // }
+        if (room.CurrentGame.Status != Game.GameStatus.Lobby)
+        {
+            _logger.LogError("CurrentGame has already started");
+            return Result.Fail(new BusinessValidationError("CurrentGame has already started"));
+        }
 
         // Add ColorTap mini game. Later, the host will be able to choose the mini game
         _logger.LogInformation("Adding ColorTap mini game to the game");

@@ -116,11 +116,11 @@ public class GameEngine
                 _ => throw new ArgumentOutOfRangeException()
             };
             await engine.PlayCurrentRound(room, miniGame);
-            var playerMetrics = await engine.CalculatePlayerMetrics(room, miniGame.CurrentRound);
-            var roundResults = _scoringSystem.CalculateRoundScores(playerMetrics);
+            var playerMetrics = await engine.CaculateRoundMetrics(room, miniGame.CurrentRound);
+            var roundResults = _scoringSystem.CalculateRoundScores(
+                playerMetrics);
             var sortedResults = roundResults.OrderByDescending(p => p.Score).ToList();
             miniGame.CurrentRound.Scoreboard = sortedResults;
-            // Inform users about the round results
             _logger.LogInformation("Round {MiniGameCurrentRound} finished. Displaying scoreboard", miniGame.CurrentRoundNo);
             miniGame.CurrentRound.EndTime = DateTime.UtcNow;
             await _lobbyHub.NotifyCurrentRoundUpdated(room.Id, _mapper.Map<MiniGameRoundResp>(miniGame.CurrentRound));

@@ -64,6 +64,8 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
             b => b.MigrationsAssembly("Api"));
         
     });
+    
+    services.Configure<ScoringConfig>(configuration.GetSection("ScoringConfig"));
 
     // Application services
     services.AddScoped<IRoomService, RoomService>();

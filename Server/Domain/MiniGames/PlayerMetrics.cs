@@ -7,7 +7,7 @@ public class PlayerMetrics
     public double Speed { get; set; }
     public double Accuracy { get; set; }
     public int ResponseOrder { get; set; }
-    public bool IsCorrect { get; set; }
+    public bool IsCorrectAnswer { get; set; }
     
     public PlayerMetrics(Player player, MiniGameRound round, double speed, double accuracy, int responseOrder)
     {

@@ -59,7 +59,7 @@ public class ColorTapEngine : IColorTapEngine
         _logger.LogInformation("Color Tap round finished");
     }
 
-    public Task<IEnumerable<PlayerMetrics>> CalculatePlayerMetrics(Room room, MiniGameRound miniGameRound)
+    public Task<IEnumerable<PlayerMetrics>> CaculateRoundMetrics(Room room, MiniGameRound miniGameRound)
     {
         if (miniGameRound is not ColorTapRound round)
         {
@@ -77,7 +77,7 @@ public class ColorTapEngine : IColorTapEngine
             Speed = random.NextDouble(),
             Accuracy = random.NextDouble(),
             ResponseOrder = random.Next(1, players.Count + 1),
-            IsCorrect = random.NextDouble() <= 0.5
+            IsCorrectAnswer = true
         }));
     }
 

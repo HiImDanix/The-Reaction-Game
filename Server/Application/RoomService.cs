@@ -82,10 +82,6 @@ public class RoomService : IRoomService
         }
         
         var dto = _mapper.Map<RoomResp>(room);
-        
-        // Debugging
-        Console.WriteLine($"CurrentMiniGame: {dto.CurrentGame?.CurrentMiniGame != null}");
-        Console.WriteLine($"CurrentRound: {dto.CurrentGame?.CurrentMiniGame?.CurrentRound != null}");
         return Result.Ok(dto);
     }
 

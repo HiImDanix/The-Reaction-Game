@@ -79,12 +79,6 @@ public class ScoringSystem: IScoringSystem
             return 0;
         }
         
-        // debug
-        _logger.LogInformation("Speed: {Speed}, Accuracy: {Accuracy}, ResponseOrder: {ResponseOrder}, Score: {Score}",
-            metrics.Speed, metrics.Accuracy, metrics.ResponseOrder, responseOrderBonusScore);
-        _logger.LogInformation("SpeedWeight: {SpeedWeight}, AccuracyWeight: {AccuracyWeight}, BaseScore: {BaseScore}",
-            _config.SpeedWeight, _config.AccuracyWeight, _config.BaseScore);
-        
         var weightedScore = _config.BaseScore * (
             metrics.Speed * _config.SpeedWeight + 
             metrics.Accuracy * _config.AccuracyWeight

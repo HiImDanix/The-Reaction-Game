@@ -66,6 +66,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     });
     
     services.Configure<ScoringConfig>(configuration.GetSection("ScoringConfig"));
+    services.Configure<ColorTapConfig>(configuration.GetSection("ColorTapConfig"));
 
     // Application services
     services.AddScoped<IRoomService, RoomService>();

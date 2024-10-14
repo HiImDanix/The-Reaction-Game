@@ -1,65 +1,69 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Threading.Tasks;
-using Application.Gaming;
+﻿using System.Drawing;
 using AutoMapper;
 using Contracts.Output;
-using Contracts.Output.Hub;
 using Domain;
 using Domain.Constants;
 using Domain.MiniGames;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
-namespace Application;
+namespace Application.Gaming;
 
 public class ColorTapEngine : IColorTapEngine
 {
-    private const double IncorrectPairProbability = 0.50;
-    private const double CorrectPairProbability = 0.20;
-
     private readonly Repository _context;
     private readonly ILobbyHub _lobbyHub;
     private readonly ILogger<ColorTapEngine> _logger;
     private readonly IMapper _mapper;
+    private readonly ColorTapConfig _config;
 
-    public ColorTapEngine(Repository context, ILobbyHub lobbyHub, ILogger<ColorTapEngine> logger, IMapper mapper)
+    public ColorTapEngine(Repository context, ILobbyHub lobbyHub, ILogger<ColorTapEngine> logger, IMapper mapper, IOptions<ColorTapConfig> config)
     {
         _context = context;
         _lobbyHub = lobbyHub;
         _logger = logger;
         _mapper = mapper;
+        _config = config.Value;
     }
 
-    public async Task PlayCurrentRound(Room room, MiniGame miniGame)
+    public async Task PlayCurrentRoundAsync(Room room, MiniGame miniGame)
     {
-        if (miniGame is not ColorTapGame)
+        try
         {
-            throw new InvalidOperationException("Mini game is not of type ColorTapGame");
-        }
+            if (miniGame is not ColorTapGame)
+            {
+                throw new InvalidOperationException("Mini game is not of type ColorTapGame");
+            }
         
-        if (miniGame.CurrentRound is not ColorTapRound round)
+            if (miniGame.CurrentRound is not ColorTapRound round)
+            {
+                throw new InvalidOperationException("Current round is not of type ColorTapRound");
+            }
+        
+            _logger.LogInformation("Color Tap game round {RoundNo} started", miniGame.CurrentRoundNo);
+        
+            // Generate data for the round and notify the clients
+            round.ColorWordPairs = GenerateColorWordPairs(round.StartTime, round.EndTime);
+            _context.ColorTapRounds.Update(round);
+            await _context.SaveChangesAsync();
+            await _lobbyHub.NotifyCurrentMiniGameUpdated(room.Id, _mapper.Map<MiniGameResp>(miniGame));
+            _logger.LogDebug("Generated {PairCount} color-word pairs for round {RoundNo}", 
+                round.ColorWordPairs.Count, miniGame.CurrentRoundNo);
+        
+            _logger.LogDebug("Waiting for round {RoundNo} to finish. Duration: {RoundDuration}", 
+                miniGame.CurrentRoundNo, miniGame.RoundDuration);
+            await Task.Delay(miniGame.RoundDuration);
+            _logger.LogDebug("Color Tap round {RoundNo} finished", miniGame.CurrentRoundNo);
+        }
+        catch (Exception e)
         {
-            throw new InvalidOperationException("Current round is not of type ColorTapRound");
+            _logger.LogError(e, "Error occurred during Color Tap game round {RoundNo}", miniGame.CurrentRoundNo);
+            throw;
         }
-        
-        _logger.LogInformation("Color Tap game round {RoundNo} started (duration: {RoundDuration})",
-            miniGame.CurrentRoundNo, miniGame.RoundDuration);
-        
-        // Generate data for the round, update the round and notify the clients
-        round.ColorWordPairs = GenerateColorWordPairs(round.StartTime, round.EndTime);
-        _context.ColorTapRounds.Update(round);
-        await _context.SaveChangesAsync();
-        await _lobbyHub.NotifyCurrentMiniGameUpdated(room.Id, _mapper.Map<MiniGameResp>(miniGame));
-        
-        _logger.LogInformation("Waiting for the round to finish");
-        await Task.Delay(ColorTapConstants.RoundDuration);
-        _logger.LogInformation("Color Tap round finished");
     }
 
-    public Task<IEnumerable<PlayerMetrics>> CaculateRoundMetrics(Room room, MiniGameRound miniGameRound)
+    public Task<IEnumerable<PlayerMetrics>> CalculateRoundMetrics(Room room, MiniGameRound miniGameRound)
     {
         if (miniGameRound is not ColorTapRound round)
         {
@@ -87,11 +91,11 @@ public class ColorTapEngine : IColorTapEngine
     /// <param name="startTime">The start time of the round.</param>
     /// <param name="endTime">The end time of the round.</param>
     /// <returns>A list of ColorTapWordPairDisplay objects representing the generated pairs.</returns>
-    private static List<ColorTapWordPairDisplay> GenerateColorWordPairs(DateTimeOffset startTime, DateTimeOffset endTime)
+    private List<ColorTapWordPairDisplay> GenerateColorWordPairs(DateTimeOffset startTime, DateTimeOffset endTime)
     {
         var availableColors = new List<Color> { Color.Red, Color.Blue, Color.Green, Color.Yellow, Color.Purple, Color.Orange };
         var roundDuration = (endTime - startTime).TotalMilliseconds;
-        var numberOfPairs = (int)Math.Ceiling(roundDuration / ColorTapConstants.WordDisplayDuration.TotalMilliseconds);
+        var numberOfPairs = (int)Math.Ceiling(roundDuration / _config.WordDisplayDuration.TotalMilliseconds);
 
         var random = new Random();
         var pairs = new List<ColorTapWordPairDisplay>();
@@ -104,7 +108,7 @@ public class ColorTapEngine : IColorTapEngine
 
             wasLastPairIncorrect = randomColor != wordColor;
 
-            var displayTime = startTime.AddMilliseconds(i * ColorTapConstants.WordDisplayDuration.TotalMilliseconds);
+            var displayTime = startTime.AddMilliseconds(i * _config.WordDisplayDuration.TotalMilliseconds);
             pairs.Add(new ColorTapWordPairDisplay
             {
                 Color = randomColor,
@@ -120,7 +124,7 @@ public class ColorTapEngine : IColorTapEngine
         return pairs;
     }
 
-    private static (Color randomColor, Color wordColor) GenerateColorWordPair(
+    private (Color randomColor, Color wordColor) GenerateColorWordPair(
         List<Color> availableColors, 
         Color? previousWord, 
         bool wasLastPairIncorrect, 
@@ -129,11 +133,11 @@ public class ColorTapEngine : IColorTapEngine
         var randomColor = availableColors[random.Next(availableColors.Count)];
         Color wordColor;
 
-        if (wasLastPairIncorrect && random.NextDouble() <= IncorrectPairProbability && previousWord.HasValue)
+        if (wasLastPairIncorrect && random.NextDouble() <= _config.IncorrectPairProbability && previousWord.HasValue)
         {
             wordColor = previousWord.Value;
         }
-        else if (random.NextDouble() <= CorrectPairProbability)
+        else if (random.NextDouble() <= _config.CorrectPairProbability)
         {
             wordColor = randomColor;
         }

@@ -115,8 +115,8 @@ public class GameEngine
                 ColorTapGame => _serviceProvider.GetRequiredService<IColorTapEngine>(),
                 _ => throw new ArgumentOutOfRangeException()
             };
-            await engine.PlayCurrentRound(room, miniGame);
-            var playerMetrics = await engine.CaculateRoundMetrics(room, miniGame.CurrentRound);
+            await engine.PlayCurrentRoundAsync(room, miniGame);
+            var playerMetrics = await engine.CalculateRoundMetrics(room, miniGame.CurrentRound);
             var roundResults = _scoringSystem.CalculateRoundScores(
                 playerMetrics);
             var sortedResults = roundResults.OrderByDescending(p => p.Score).ToList();

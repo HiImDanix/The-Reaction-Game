@@ -5,6 +5,6 @@ namespace Application.Gaming;
 
 public interface IMiniGameEngine
 {
-    public Task PlayCurrentRound(Room room, MiniGame miniGame);
-    public Task<IEnumerable<PlayerMetrics>> CaculateRoundMetrics(Room room, MiniGameRound miniGameRound);
+    public Task PlayCurrentRoundAsync(Room room, MiniGame miniGame);
+    public Task<IEnumerable<PlayerMetrics>> CalculateRoundMetrics(Room room, MiniGameRound miniGameRound);
 }

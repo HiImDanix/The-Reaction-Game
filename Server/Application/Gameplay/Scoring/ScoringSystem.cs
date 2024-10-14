@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Application.Gaming;
+namespace Application.Gameplay.Scoring;
 
 public class ScoringSystem: IScoringSystem
 {

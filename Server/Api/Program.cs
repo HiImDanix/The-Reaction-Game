@@ -1,6 +1,8 @@
 using System.Text;
 using Application;
-using Application.Gaming;
+using Application.Gameplay;
+using Application.Gameplay.ColorTap;
+using Application.Gameplay.Scoring;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Hangfire;

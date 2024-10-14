@@ -1,4 +1,4 @@
-﻿namespace Application.Gaming;
+﻿namespace Application.Gameplay;
 
 public class GameEngineConfig
 {

@@ -1,7 +1,7 @@
 ﻿using Domain;
 using Domain.MiniGames;
 
-namespace Application.Gaming;
+namespace Application.Gameplay;
 
 public interface IMiniGameEngine
 {

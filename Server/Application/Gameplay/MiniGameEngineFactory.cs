@@ -1,7 +1,8 @@
-﻿using Domain.MiniGames;
+﻿using Application.Gameplay.ColorTap;
+using Domain.MiniGames;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Application.Gaming;
+namespace Application.Gameplay;
 
 public class MiniGameEngineFactory: IMiniGameEngineFactory
 {

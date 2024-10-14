@@ -1,5 +1,5 @@
 ﻿using Application.Errors;
-using Application.Gaming;
+using Application.Gameplay;
 using Domain;
 using Domain.Constants;
 using Domain.Errors;

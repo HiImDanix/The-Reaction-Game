@@ -1,6 +1,6 @@
 ﻿using Domain.MiniGames;
 
-namespace Application.Gaming;
+namespace Application.Gameplay.Scoring;
 
 public interface IScoringSystem
 {

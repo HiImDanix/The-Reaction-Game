@@ -2,13 +2,12 @@
 using AutoMapper;
 using Contracts.Output;
 using Domain;
-using Domain.Constants;
 using Domain.MiniGames;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Application.Gaming;
+namespace Application.Gameplay.ColorTap;
 
 public class ColorTapEngine : IColorTapEngine
 {

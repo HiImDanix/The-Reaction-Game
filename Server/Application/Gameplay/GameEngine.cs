@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using Application.Gameplay.Scoring;
+using AutoMapper;
 using Contracts.Output;
 using Contracts.Output.MiniGames;
 using Domain;
@@ -8,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Application.Gaming;
+namespace Application.Gameplay;
 
 public class GameEngine
 {

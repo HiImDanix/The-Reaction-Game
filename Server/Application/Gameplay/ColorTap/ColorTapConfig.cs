@@ -1,4 +1,4 @@
-﻿namespace Application.Gaming;
+﻿namespace Application.Gameplay.ColorTap;
 
 public class ColorTapConfig
 {

@@ -1,8 +1,7 @@
-﻿using Domain;
-using Domain.MiniGames;
+﻿using Domain.MiniGames;
 using Shared.Enums;
 
-namespace Application.Gaming;
+namespace Application.Gameplay;
 
 public static class MiniGameFactory
 {

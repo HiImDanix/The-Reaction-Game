@@ -1,9 +1,11 @@
-﻿using Application.Errors;
+﻿using System.Text;
+using Application.Errors;
 using AutoMapper;
 using Contracts.Output;
 using Contracts.Output.Hub;
 using Microsoft.EntityFrameworkCore;
 using Domain;
+using Domain.Constants;
 using Domain.MiniGames;
 using FluentResults;
 using Infrastructure;
@@ -28,7 +30,8 @@ public class RoomService : IRoomService
     public async Task<Result<RoomCreatedPersonalResp>> CreateRoomAsync(string hostName)
     {
         var player = new Player(hostName);
-        var room = new Room(player);
+        var roomCode = GenerateRoomCode();
+        var room = new Room(player, roomCode);
 
         await using var transaction = await _context.Database.BeginTransactionAsync();
         try
@@ -83,6 +86,17 @@ public class RoomService : IRoomService
         
         var dto = _mapper.Map<RoomResp>(room);
         return Result.Ok(dto);
+    }
+    
+    private static string GenerateRoomCode()
+    {
+        var generatedCode = new StringBuilder(RoomConstants.MaxCodeLength);
+        for (var i = 0; i < RoomConstants.MaxCodeLength; i++)
+        {
+            generatedCode.Append(RoomConstants.CodeChars[Random.Shared.Next(RoomConstants.CodeChars.Length)]);
+        }
+       
+        return generatedCode.ToString();
     }
 
     public async Task<Result<bool>> IsRoomJoinable(string code)

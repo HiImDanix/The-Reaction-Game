@@ -25,9 +25,9 @@ public class Room
     public DateTimeOffset CreatedAt { get; set; } = DateTime.UtcNow;
     
 
-    public Room(Player host)
+    public Room(Player host, string roomCode)
     {
-        Code = GenerateRoomCode();
+        Code = roomCode;
         HostId = host.Id;
         Players.Add(host);
         CurrentGame = new Game();
@@ -37,16 +37,5 @@ public class Room
     public Room()
     {}
 
-    // TODO: Extract to service
-    private static string GenerateRoomCode()
-    {
-       var generatedCode = new StringBuilder(RoomConstants.MaxCodeLength);
-       for (var i = 0; i < RoomConstants.MaxCodeLength; i++)
-       {
-           generatedCode.Append(RoomConstants.CodeChars[Random.Next(RoomConstants.CodeChars.Length)]);
-       }
-       
-       return generatedCode.ToString();
-    }
 
 }

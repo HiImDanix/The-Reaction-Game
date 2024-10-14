@@ -8,82 +8,70 @@ namespace Application;
 
 public class AuthService: IAuthService
 {
-    private readonly IConfiguration _configuration;
-    private string SecretKey;
+    private const string SecurityAlgorithm = SecurityAlgorithms.HmacSha256;
+    private const string PlayerNameClaimType = "playerName";
+    private const string RoomIdClaimType = "roomId";
+    
+    private readonly string SecretKey;
     private readonly SymmetricSecurityKey _signingKey;
     private readonly string _issuer;
     private readonly string _audience;
+    private readonly TimeSpan _tokenLifetime;
     
     public AuthService(IConfiguration configuration)
     {
-        _configuration = configuration;
-        SecretKey = _configuration["JWT:SECRET_KEY"] ?? throw new ArgumentNullException("SECRET_KEY is missing");
+        SecretKey = configuration["JWT:SECRET_KEY"] ?? throw new ArgumentNullException("SECRET_KEY is missing");
         _signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SecretKey));
-        _issuer = _configuration["JWT:ISSUER"] ?? throw new ArgumentNullException("ISSUER is missing");
-        _audience = _configuration["JWT:AUDIENCE"] ?? throw new ArgumentNullException("AUDIENCE is missing");
+        _issuer = configuration["JWT:ISSUER"] ?? throw new ArgumentNullException("ISSUER is missing");
+        _audience = configuration["JWT:AUDIENCE"] ?? throw new ArgumentNullException("AUDIENCE is missing");
+        _tokenLifetime = TimeSpan.FromHours(int.Parse(configuration["JWT:LIFETIME_HOURS"] ?? "24"));
     }
     
     public string GenerateToken(string playerId, string playerName, string roomId)
     {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var tokenDescriptor = new SecurityTokenDescriptor
+        var claims = new[]
         {
-            Subject = new ClaimsIdentity(new[]
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, playerId),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
-                new Claim("playerName", playerName),
-                new Claim("roomId", roomId),
-            }),
-            Expires = DateTime.UtcNow.AddHours(24),
-            SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256Signature),
-            Issuer = _issuer,
-            Audience = _audience
+            new Claim(JwtRegisteredClaimNames.Sub, playerId),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(),
+                ClaimValueTypes.Integer64),
+            new Claim(PlayerNameClaimType, playerName),
+            new Claim(RoomIdClaimType, roomId),
         };
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-        return tokenHandler.WriteToken(token);
+        
+        var token = new JwtSecurityToken(
+            issuer: _issuer,
+            audience: _audience,
+            claims: claims,
+            expires: DateTime.UtcNow.Add(_tokenLifetime),
+            signingCredentials: new SigningCredentials(_signingKey, SecurityAlgorithm)
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    // public bool ValidateToken(string token)
-    // {
-    //     var tokenHandler = new JwtSecurityTokenHandler();
-    //     try
-    //     {
-    //         tokenHandler.ValidateToken(token, new TokenValidationParameters
-    //         {
-    //             ValidateIssuerSigningKey = true,
-    //             IssuerSigningKey = _signingKey,
-    //             ValidateIssuer = false,
-    //             ValidateAudience = false,
-    //             ClockSkew = TimeSpan.Zero
-    //         }, out _);
-    //         return true;
-    //     }
-    //     catch
-    //     {
-    //         return false;
-    //     }
-    // }
-
-    public string ExtractPlayerIdFromToken(string token)
+    private string ExtractClaimFromToken(string token, string claimType)
     {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var jwtToken = (JwtSecurityToken)tokenHandler.ReadToken(token);
-        return jwtToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.Sub).Value;
+        if (string.IsNullOrEmpty(token))
+            throw new ArgumentNullException(nameof(token));
+
+        if (string.IsNullOrEmpty(claimType))
+            throw new ArgumentNullException(nameof(claimType));
+
+        try
+        {
+            var jwtToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            return jwtToken.Claims.First(claim => claim.Type == claimType).Value;
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"Failed to extract claim {claimType} from token", ex);
+        }
     }
 
-    public string ExtractRoomIdFromToken(string sessionToken)
-    {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var jwtToken = (JwtSecurityToken)tokenHandler.ReadToken(sessionToken);
-        return jwtToken.Claims.First(claim => claim.Type == "roomId").Value;
-    }
+    public string ExtractPlayerIdFromToken(string token) => ExtractClaimFromToken(token, JwtRegisteredClaimNames.Sub);
 
-    public string ExtractPlayerNameFromToken(string sessionToken)
-    {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var jwtToken = (JwtSecurityToken)tokenHandler.ReadToken(sessionToken);
-        return jwtToken.Claims.First(claim => claim.Type == "playerName").Value;
-    }
+    public string ExtractRoomIdFromToken(string token) => ExtractClaimFromToken(token, "roomId");
+
+    public string ExtractPlayerNameFromToken(string token) => ExtractClaimFromToken(token, "playerName");
 }

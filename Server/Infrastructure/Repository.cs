@@ -40,15 +40,9 @@ public class Repository: DbContext
             .Property(e => e.Word)
             .HasConversion(new ColorConverter());
         
-        // TODO: Re-check this
         modelBuilder.Entity<MiniGame>()
             .HasDiscriminator<string>("MiniGameType")
             .HasValue<ColorTapGame>(nameof(ColorTapGame));
-
-        // modelBuilder.Entity<MiniGame>()
-        //     .HasMany(mg => mg.Rounds)
-        //     .WithOne(r => r.MiniGame)
-        //     .HasForeignKey(r => r.MiniGameId);
 
         modelBuilder.Entity<MiniGameRound>()
             .HasDiscriminator<string>("RoundType")

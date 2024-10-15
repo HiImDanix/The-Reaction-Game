@@ -3,6 +3,7 @@ using Application;
 using Application.Gameplay;
 using Application.Gameplay.ColorTap;
 using Application.Gameplay.Scoring;
+using Application.HubInterfaces;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Hangfire;
@@ -80,6 +81,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     
     // Hubs
     services.AddScoped<ILobbyHub, LobbyHub>();
+    services.AddScoped<IGameplayHub, GameplayHub>();
     
     // Game engines
     services.AddScoped<IColorTapEngine, ColorTapEngine>();

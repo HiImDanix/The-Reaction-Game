@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Application.Errors;
+using Application.HubInterfaces;
 using AutoMapper;
 using Contracts.Output;
 using Contracts.Output.Hub;

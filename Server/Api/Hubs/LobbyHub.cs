@@ -1,4 +1,5 @@
 ﻿using Application;
+using Application.HubInterfaces;
 using Contracts.Output;
 using Contracts.Output.Hub;
 using Contracts.Output.MiniGames;
@@ -15,10 +16,7 @@ public class LobbyHub: BaseHub, ILobbyHub
     
     private enum MessageType
     {
-        PlayerJoined,
-        CurrentGameUpdated,
-        CurrentMiniGameUpdated,
-        CurrentRoundUpdated
+        PlayerJoined
     }
 
     public LobbyHub(ILogger<LobbyHub> logger, IAuthService authService, IHubContext<LobbyHub> context) : base(logger, authService, context)
@@ -31,18 +29,4 @@ public class LobbyHub: BaseHub, ILobbyHub
         await SendToRoom(roomId, MessageType.PlayerJoined.ToString(), msg);
     }
     
-    public Task NotifyCurrentGameUpdated(string roomId, GameResp currentGame)
-    {
-        return SendToRoom(roomId, MessageType.CurrentGameUpdated.ToString(), currentGame);
-    }
-
-    public Task NotifyCurrentMiniGameUpdated(string roomId, MiniGameResp message)
-    {
-        return SendToRoom(roomId, MessageType.CurrentMiniGameUpdated.ToString(), message);
-    }
-
-    public Task NotifyCurrentRoundUpdated(string roomId, MiniGameRoundResp roundDto)
-    {
-        return SendToRoom(roomId, MessageType.CurrentRoundUpdated.ToString(), roundDto);
-    }
 }

@@ -1,15 +1,10 @@
 ﻿using Contracts.Output;
-using Contracts.Output.Hub;
 using Contracts.Output.MiniGames;
-using Domain;
-using Domain.MiniGames;
 
-namespace Application;
+namespace Application.HubInterfaces;
 
-// TODO: Rename
-public interface ILobbyHub
+public interface IGameplayHub
 {
-    Task NotifyPlayerJoined(string roomId, PlayerJoinedMessage dto);
     Task NotifyCurrentGameUpdated(string roomId, GameResp currentGame);
     Task NotifyCurrentMiniGameUpdated(string roomId, MiniGameResp miniGame);
     Task NotifyCurrentRoundUpdated(string roomId, MiniGameRoundResp roundDto);

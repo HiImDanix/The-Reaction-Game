@@ -1,4 +1,5 @@
 ﻿using Application.Gameplay.Scoring;
+using Application.HubInterfaces;
 using AutoMapper;
 using Contracts.Output;
 using Contracts.Output.MiniGames;
@@ -14,19 +15,19 @@ namespace Application.Gameplay;
 public class GameEngine
 {
     private readonly Repository _context;
-    private readonly ILobbyHub _lobbyHub;
+    private readonly IGameplayHub _gameplayHub;
     private readonly ILogger<GameEngine> _logger;
     private readonly IMapper _mapper;
     private readonly IScoringSystem _scoringSystem;
     private readonly GameEngineConfig _config;
     private readonly IMiniGameEngineFactory _miniGameEngineFactory;
 
-    public GameEngine(Repository context, ILobbyHub lobbyHub, ILogger<GameEngine> logger,
+    public GameEngine(Repository context, IGameplayHub gameplayHub, ILogger<GameEngine> logger,
         IMapper mapper, IScoringSystem scoringSystem, IOptions<GameEngineConfig> config,
         IMiniGameEngineFactory miniGameEngineFactory)
     {
         _context = context;
-        _lobbyHub = lobbyHub;
+        _gameplayHub = gameplayHub;
         _logger = logger;
         _mapper = mapper;
         _scoringSystem = scoringSystem;
@@ -60,7 +61,7 @@ public class GameEngine
         room.CurrentGame.StartClickedAt = DateTime.UtcNow;
         room.CurrentGame.Status = Game.GameStatus.PrepareToStart;
         await _context.SaveChangesAsync();
-        await _lobbyHub.NotifyCurrentGameUpdated(room.Id, _mapper.Map<GameResp>(room.CurrentGame));
+        await _gameplayHub.NotifyCurrentGameUpdated(room.Id, _mapper.Map<GameResp>(room.CurrentGame));
         await Task.Delay(room.CurrentGame.PreparationDuration);
         _logger.LogDebug("Preparation phase completed for room {RoomId}", room.Id);
     }
@@ -78,7 +79,7 @@ public class GameEngine
         }
         room.CurrentGame.CurrentMiniGame = null;
         await _context.SaveChangesAsync();
-        await _lobbyHub.NotifyCurrentGameUpdated(room.Id, _mapper.Map<GameResp>(room.CurrentGame));
+        await _gameplayHub.NotifyCurrentGameUpdated(room.Id, _mapper.Map<GameResp>(room.CurrentGame));
         _logger.LogInformation("All mini-games completed for room {RoomId}", room.Id);
     }
 
@@ -88,7 +89,7 @@ public class GameEngine
         room.CurrentGame.CurrentMiniGame = miniGame;
         miniGame.InstructionsStartTime = DateTime.UtcNow;
         await _context.SaveChangesAsync();
-        await _lobbyHub.NotifyCurrentGameUpdated(room.Id, _mapper.Map<GameResp>(room.CurrentGame));
+        await _gameplayHub.NotifyCurrentGameUpdated(room.Id, _mapper.Map<GameResp>(room.CurrentGame));
         await Task.Delay(miniGame.InstructionsDuration);
         _logger.LogDebug("Instructions shown for {MiniGameType} in room {RoomId}", miniGame.GetType().Name, room.Id);
     }
@@ -98,7 +99,7 @@ public class GameEngine
         _logger.LogInformation("Phase 3: Showing final scoreboard for room {RoomId}", room.Id);
         room.CurrentGame.Status = Game.GameStatus.FinalScoreboard;
         await _context.SaveChangesAsync();
-        await _lobbyHub.NotifyCurrentGameUpdated(room.Id, _mapper.Map<GameResp>(room.CurrentGame));
+        await _gameplayHub.NotifyCurrentGameUpdated(room.Id, _mapper.Map<GameResp>(room.CurrentGame));
         _logger.LogDebug("Final scoreboard displayed for room {RoomId}", room.Id);
     }
 
@@ -153,7 +154,7 @@ public class GameEngine
         _logger.LogInformation("Displaying scoreboard for round {CurrentRound} of {MiniGameType} in room {RoomId} for {Duration}ms", 
             miniGame.CurrentRoundNo, miniGame.GetType().Name, room.Id, _config.RoundEndScoreboardScreenDuration.TotalMilliseconds);
         
-        await _lobbyHub.NotifyCurrentRoundUpdated(room.Id, _mapper.Map<MiniGameRoundResp>(miniGame.CurrentRound));
+        await _gameplayHub.NotifyCurrentRoundUpdated(room.Id, _mapper.Map<MiniGameRoundResp>(miniGame.CurrentRound));
         await Task.Delay(_config.RoundEndScoreboardScreenDuration);
         
         _logger.LogDebug("Round results displayed for round {CurrentRound} of {MiniGameType} in room {RoomId}", 

@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using Application.HubInterfaces;
 using AutoMapper;
 using Contracts.Output;
 using Domain;
@@ -12,15 +13,15 @@ namespace Application.Gameplay.ColorTap;
 public class ColorTapEngine : IColorTapEngine
 {
     private readonly Repository _context;
-    private readonly ILobbyHub _lobbyHub;
+    private readonly IGameplayHub _gameplayHub;
     private readonly ILogger<ColorTapEngine> _logger;
     private readonly IMapper _mapper;
     private readonly ColorTapConfig _config;
 
-    public ColorTapEngine(Repository context, ILobbyHub lobbyHub, ILogger<ColorTapEngine> logger, IMapper mapper, IOptions<ColorTapConfig> config)
+    public ColorTapEngine(Repository context, IGameplayHub gameplayHub, ILogger<ColorTapEngine> logger, IMapper mapper, IOptions<ColorTapConfig> config)
     {
         _context = context;
-        _lobbyHub = lobbyHub;
+        _gameplayHub = gameplayHub;
         _logger = logger;
         _mapper = mapper;
         _config = config.Value;
@@ -46,7 +47,7 @@ public class ColorTapEngine : IColorTapEngine
             round.ColorWordPairs = GenerateColorWordPairs(round.StartTime, round.EndTime);
             _context.ColorTapRounds.Update(round);
             await _context.SaveChangesAsync();
-            await _lobbyHub.NotifyCurrentMiniGameUpdated(room.Id, _mapper.Map<MiniGameResp>(miniGame));
+            await _gameplayHub.NotifyCurrentMiniGameUpdated(room.Id, _mapper.Map<MiniGameResp>(miniGame));
             _logger.LogDebug("Generated {PairCount} color-word pairs for round {RoundNo}", 
                 round.ColorWordPairs.Count, miniGame.CurrentRoundNo);
         
